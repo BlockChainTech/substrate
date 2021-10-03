@@ -180,7 +180,7 @@ where
 					.all(|&(ref id, ref service, _, _)| full_predicate(*id, service));
 
 				if !full_ready {
-					continue
+					continue;
 				}
 
 				let light_ready = light_nodes
@@ -188,7 +188,7 @@ where
 					.all(|&(ref id, ref service, _)| light_predicate(*id, service));
 
 				if light_ready {
-					return
+					return;
 				}
 			}
 		};

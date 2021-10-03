@@ -33,8 +33,9 @@ pub fn digest_build_iterator<'a, Number: BlockNumber>(
 	// prepare digest build parameters
 	let (_, _, digest_step) = match config.config.digest_level_at_block(config.zero, block.clone())
 	{
-		Some((current_level, digest_interval, digest_step)) =>
-			(current_level, digest_interval, digest_step),
+		Some((current_level, digest_interval, digest_step)) => {
+			(current_level, digest_interval, digest_step)
+		}
 		None => return DigestBuildIterator::empty(),
 	};
 
@@ -104,7 +105,7 @@ impl<Number: BlockNumber> Iterator for DigestBuildIterator<Number> {
 			if let Some(next) = self.current_range.as_mut().and_then(|iter| iter.next()) {
 				if next < self.end {
 					self.last_block = Some(next.clone());
-					return Some(next)
+					return Some(next);
 				}
 			}
 
@@ -118,16 +119,17 @@ impl<Number: BlockNumber> Iterator for DigestBuildIterator<Number> {
 				self.current_step_reverse * self.digest_interval
 			};
 			if next_step_reverse > self.max_step {
-				return None
+				return None;
 			}
 
 			self.current_step_reverse = next_step_reverse;
 			self.current_range = Some(BlocksRange::new(
 				match self.last_block.clone() {
 					Some(last_block) => last_block + self.current_step.into(),
-					None =>
-						self.block.clone() -
-							(self.current_step * self.digest_interval - self.current_step).into(),
+					None => {
+						self.block.clone()
+							- (self.current_step * self.digest_interval - self.current_step).into()
+					}
 				},
 				self.block.clone(),
 				self.current_step.into(),
@@ -160,7 +162,7 @@ impl<Number: BlockNumber> Iterator for BlocksRange<Number> {
 
 	fn next(&mut self) -> Option<Self::Item> {
 		if self.current >= self.end {
-			return None
+			return None;
 		}
 
 		let current = Some(self.current.clone());

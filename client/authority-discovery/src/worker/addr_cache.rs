@@ -62,8 +62,8 @@ impl AddrCache {
 				Some(a) => a,
 				None => {
 					debug_assert!(false);
-					continue
-				},
+					continue;
+				}
 			};
 			former_auth_addrs.retain(|a| peer_id_from_multiaddr(a).map_or(true, |p| p != peer_id));
 		}

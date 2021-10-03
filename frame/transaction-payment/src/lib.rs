@@ -325,15 +325,15 @@ pub mod pallet {
 			// loss.
 			use sp_std::convert::TryInto;
 			assert!(
-				<Multiplier as sp_runtime::traits::Bounded>::max_value() >=
-					Multiplier::checked_from_integer(
+				<Multiplier as sp_runtime::traits::Bounded>::max_value()
+					>= Multiplier::checked_from_integer(
 						T::BlockWeights::get().max_block.try_into().unwrap()
 					)
 					.unwrap(),
 			);
 
-			let target = T::FeeMultiplierUpdate::target() *
-				T::BlockWeights::get().get(DispatchClass::Normal).max_total.expect(
+			let target = T::FeeMultiplierUpdate::target()
+				* T::BlockWeights::get().get(DispatchClass::Normal).max_total.expect(
 					"Setting `max_total` for `Normal` dispatch class is not compatible with \
 					`transaction-payment` pallet.",
 				);
@@ -341,7 +341,7 @@ pub mod pallet {
 			let addition = target / 100;
 			if addition == 0 {
 				// this is most likely because in a test setup we set everything to ().
-				return
+				return;
 			}
 
 			#[cfg(any(feature = "std", test))]

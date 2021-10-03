@@ -159,13 +159,13 @@ where
 									.exists_child_storage(&child_info, k)
 									.map_err(|e| format!("{}", e))?
 								{
-									return Ok(map)
+									return Ok(map);
 								}
 							}
 						} else {
 							if !overlay.storage(k).map(|v| v.is_some()).unwrap_or_default() {
 								if !backend.exists_storage(k).map_err(|e| format!("{}", e))? {
-									return Ok(map)
+									return Ok(map);
 								}
 							}
 						};
@@ -175,14 +175,14 @@ where
 							ExtrinsicIndex { block: block.clone(), key: k.to_vec() },
 							extrinsics,
 						));
-					},
+					}
 					Entry::Occupied(mut entry) => {
 						// we do not need to check for temporary values here, because entry is
 						// Occupied AND we are checking it before insertion
 						let entry_extrinsics = &mut entry.get_mut().1;
 						entry_extrinsics.extend(extrinsics.into_iter());
 						entry_extrinsics.sort();
-					},
+					}
 				}
 
 				Ok(map)
@@ -244,7 +244,7 @@ where
 								DigestIndex { block: block.clone(), key },
 								vec![digest_build_block.clone()],
 							));
-						},
+						}
 						Entry::Occupied(mut entry) => {
 							// DigestIndexValue must be sorted. Here we are relying on the fact that
 							// digest_build_iterator() returns blocks in ascending order => we only
@@ -256,7 +256,7 @@ where
 							if !is_dup_block {
 								entry.get_mut().1.push(digest_build_block.clone());
 							}
-						},
+						}
 					}
 				};
 
@@ -279,7 +279,7 @@ where
 						}
 					});
 				if populated_from_cache {
-					return Ok((map, child_map))
+					return Ok((map, child_map));
 				}
 
 				let mut children_roots = BTreeMap::<PrefixedStorageKey, _>::new();

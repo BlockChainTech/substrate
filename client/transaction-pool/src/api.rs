@@ -92,7 +92,7 @@ impl<Client, Block> FullChainApi<Client, Block> {
 					err,
 				);
 				None
-			},
+			}
 			Ok(api) => Some(Arc::new(api)),
 		});
 
@@ -387,8 +387,8 @@ where
 			Ok(header) => header,
 			Err(err) => {
 				log::warn!(target: "txpool", "Failed to query header: {:?}", err);
-				return Box::pin(ready(Ok(None)))
-			},
+				return Box::pin(ready(Ok(None)));
+			}
 		};
 
 		let fetcher = self.fetcher.clone();

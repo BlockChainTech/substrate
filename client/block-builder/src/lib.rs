@@ -208,7 +208,7 @@ where
 				Ok(Ok(_)) => {
 					extrinsics.push(xt);
 					TransactionOutcome::Commit(Ok(()))
-				},
+				}
 				Ok(Err(tx_validity)) => TransactionOutcome::Rollback(Err(
 					ApplyExtrinsicFailed::Validity(tx_validity).into(),
 				)),

@@ -78,7 +78,7 @@ impl SpawnTaskHandle {
 	) {
 		if self.task_notifier.is_closed() {
 			debug!("Attempt to spawn a new task has been prevented: {}", name);
-			return
+			return;
 		}
 
 		let on_exit = self.on_exit.clone();
@@ -110,14 +110,14 @@ impl SpawnTaskHandle {
 					Either::Right((Err(payload), _)) => {
 						metrics.tasks_ended.with_label_values(&[name, "panic"]).inc();
 						panic::resume_unwind(payload)
-					},
+					}
 					Either::Right((Ok(()), _)) => {
 						metrics.tasks_ended.with_label_values(&[name, "finished"]).inc();
-					},
+					}
 					Either::Left(((), _)) => {
 						// The `on_exit` has triggered.
 						metrics.tasks_ended.with_label_values(&[name, "interrupted"]).inc();
-					},
+					}
 				}
 			} else {
 				futures::pin_mut!(task);
@@ -133,7 +133,7 @@ impl SpawnTaskHandle {
 				self.tokio_handle.spawn_blocking(move || {
 					handle.block_on(future);
 				})
-			},
+			}
 		};
 
 		let _ = self.task_notifier.unbounded_send(join_handle);

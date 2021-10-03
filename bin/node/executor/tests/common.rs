@@ -200,7 +200,7 @@ pub fn construct_block(
 		match ApplyExtrinsicResult::decode(&mut &r[..])
 			.expect("apply result deserialization failed")
 		{
-			Ok(_) => {},
+			Ok(_) => {}
 			Err(e) => panic!("Applying extrinsic failed: {:?}", e),
 		}
 	}

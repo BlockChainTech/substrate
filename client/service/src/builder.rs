@@ -205,8 +205,9 @@ impl KeystoreContainer {
 	/// Construct KeystoreContainer
 	pub fn new(config: &KeystoreConfig) -> Result<Self, Error> {
 		let keystore = Arc::new(match config {
-			KeystoreConfig::Path { path, password } =>
-				LocalKeystore::open(path.clone(), password.clone())?,
+			KeystoreConfig::Path { path, password } => {
+				LocalKeystore::open(path.clone(), password.clone())?
+			}
 			KeystoreConfig::InMemory => LocalKeystore::in_memory(),
 		});
 
@@ -901,8 +902,8 @@ where
 			let (handler, protocol_config) = BlockRequestHandler::new(
 				&protocol_id,
 				client.clone(),
-				config.network.default_peers_set.in_peers as usize +
-					config.network.default_peers_set.out_peers as usize,
+				config.network.default_peers_set.in_peers as usize
+					+ config.network.default_peers_set.out_peers as usize,
 			);
 			spawn_handle.spawn("block_request_handler", handler.run());
 			protocol_config
@@ -918,8 +919,8 @@ where
 			let (handler, protocol_config) = StateRequestHandler::new(
 				&protocol_id,
 				client.clone(),
-				config.network.default_peers_set.in_peers as usize +
-					config.network.default_peers_set.out_peers as usize,
+				config.network.default_peers_set.in_peers as usize
+					+ config.network.default_peers_set.out_peers as usize,
 			);
 			spawn_handle.spawn("state_request_handler", handler.run());
 			protocol_config
@@ -1033,7 +1034,7 @@ where
 			);
 			// This `return` might seem unnecessary, but we don't want to make it look like
 			// everything is working as normal even though the user is clearly misusing the API.
-			return
+			return;
 		}
 
 		future.await

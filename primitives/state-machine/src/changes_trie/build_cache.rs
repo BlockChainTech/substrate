@@ -107,7 +107,7 @@ where
 			Some(changed_keys) => {
 				functor(changed_keys);
 				true
-			},
+			}
 			None => false,
 		}
 	}
@@ -125,11 +125,11 @@ where
 						self.changed_keys.remove(&digest_input_block_hash);
 					}
 				}
-			},
+			}
 			CacheAction::Clear => {
 				self.roots_by_number.clear();
 				self.changed_keys.clear();
-			},
+			}
 		}
 	}
 }
@@ -146,8 +146,9 @@ impl<N> IncompleteCacheAction<N> {
 	/// Complete cache action with computed changes trie root.
 	pub(crate) fn complete<H: Clone>(self, block: N, trie_root: &H) -> CacheAction<H, N> {
 		match self {
-			IncompleteCacheAction::CacheBuildData(build_data) =>
-				CacheAction::CacheBuildData(build_data.complete(block, trie_root.clone())),
+			IncompleteCacheAction::CacheBuildData(build_data) => {
+				CacheAction::CacheBuildData(build_data.complete(block, trie_root.clone()))
+			}
 			IncompleteCacheAction::Clear => CacheAction::Clear,
 		}
 	}
@@ -158,10 +159,11 @@ impl<N> IncompleteCacheAction<N> {
 	/// will be removed from the cache.
 	pub(crate) fn set_digest_input_blocks(self, digest_input_blocks: Vec<N>) -> Self {
 		match self {
-			IncompleteCacheAction::CacheBuildData(build_data) =>
+			IncompleteCacheAction::CacheBuildData(build_data) => {
 				IncompleteCacheAction::CacheBuildData(
 					build_data.set_digest_input_blocks(digest_input_blocks),
-				),
+				)
+			}
 			IncompleteCacheAction::Clear => IncompleteCacheAction::Clear,
 		}
 	}
@@ -173,8 +175,9 @@ impl<N> IncompleteCacheAction<N> {
 		changed_keys: HashSet<StorageKey>,
 	) -> Self {
 		match self {
-			IncompleteCacheAction::CacheBuildData(build_data) =>
-				IncompleteCacheAction::CacheBuildData(build_data.insert(storage_key, changed_keys)),
+			IncompleteCacheAction::CacheBuildData(build_data) => {
+				IncompleteCacheAction::CacheBuildData(build_data.insert(storage_key, changed_keys))
+			}
 			IncompleteCacheAction::Clear => IncompleteCacheAction::Clear,
 		}
 	}

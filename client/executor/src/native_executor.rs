@@ -243,7 +243,7 @@ impl sp_core::traits::ReadRuntimeVersion for WasmExecutor {
 			.map_err(|e| format!("Failed to read the static section: {:?}", e))
 			.map(|v| v.map(|v| v.encode()))?
 		{
-			return Ok(version)
+			return Ok(version);
 		}
 
 		// If the blob didn't have embedded runtime version section, we fallback to the legacy
@@ -412,8 +412,8 @@ impl RuntimeSpawn for RuntimeInstanceSpawn {
 						);
 
 						// This will drop sender and receiver end will panic
-						return
-					},
+						return;
+					}
 				};
 
 				let mut async_ext = match async_ext.with_runtime_spawn(Box::new(
@@ -428,8 +428,8 @@ impl RuntimeSpawn for RuntimeInstanceSpawn {
 						);
 
 						// This will drop sender and receiver end will panic
-						return
-					},
+						return;
+					}
 				};
 
 				let result = with_externalities_safe(&mut async_ext, move || {
@@ -449,12 +449,12 @@ impl RuntimeSpawn for RuntimeInstanceSpawn {
 				match result {
 					Ok(output) => {
 						let _ = sender.send(output);
-					},
+					}
 					Err(error) => {
 						// If execution is panicked, the `join` in the original runtime code will
 						// panic as well, since the sender is dropped without sending anything.
 						log::error!("Call error in spawned task: {:?}", error);
-					},
+					}
 				}
 			}),
 		);
@@ -547,7 +547,7 @@ impl<D: NativeExecutionDispatch + 'static> CodeExecutor for NativeElseWasmExecut
 							preregister_builtin_ext(module.clone());
 							instance.call_export(method, data).map(NativeOrEncoded::Encoded)
 						})
-					},
+					}
 					(true, true, Some(call)) => {
 						trace!(
 							target: "executor",
@@ -562,7 +562,7 @@ impl<D: NativeExecutionDispatch + 'static> CodeExecutor for NativeElseWasmExecut
 							.and_then(|r| r.map(NativeOrEncoded::Native).map_err(Error::ApiError));
 
 						Ok(res)
-					},
+					}
 					_ => {
 						trace!(
 							target: "executor",
@@ -575,7 +575,7 @@ impl<D: NativeExecutionDispatch + 'static> CodeExecutor for NativeElseWasmExecut
 						Ok(with_externalities_safe(&mut **ext, move || D::dispatch(method, data))?
 							.map(NativeOrEncoded::Encoded)
 							.ok_or_else(|| Error::MethodNotFound(method.to_owned())))
-					},
+					}
 				}
 			},
 		);

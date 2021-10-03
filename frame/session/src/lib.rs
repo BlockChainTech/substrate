@@ -671,7 +671,7 @@ impl<T: Config> Pallet<T> {
 			let mut now_session_keys = session_keys.iter();
 			let mut check_next_changed = |keys: &T::Keys| {
 				if changed {
-					return
+					return;
 				}
 				// since a new validator set always leads to `changed` starting
 				// as true, we can ensure that `now_session_keys` and `next_validators`
@@ -679,7 +679,7 @@ impl<T: Config> Pallet<T> {
 				if let Some(&(_, ref old_keys)) = now_session_keys.next() {
 					if old_keys != keys {
 						changed = true;
-						return
+						return;
 					}
 				}
 			};
@@ -838,7 +838,7 @@ impl<T: Config> Pallet<T> {
 
 			if let Some(old) = old_keys.as_ref().map(|k| k.get_raw(*id)) {
 				if key == old {
-					continue
+					continue;
 				}
 
 				Self::clear_key_owner(*id, old);

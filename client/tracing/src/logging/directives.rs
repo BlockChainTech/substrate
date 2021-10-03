@@ -72,7 +72,7 @@ pub fn reload_filter() -> Result<(), String> {
 						"Unable to parse directive while setting log filter: {:?}",
 						invalid_directive,
 					);
-				},
+				}
 			}
 		}
 	}

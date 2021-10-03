@@ -194,7 +194,7 @@ pub fn start_ws<
 		e => {
 			error!("{}", e);
 			io::ErrorKind::Other.into()
-		},
+		}
 	})
 }
 

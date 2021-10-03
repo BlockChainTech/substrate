@@ -186,10 +186,12 @@ pub mod pallet {
 			let should_send = Self::choose_transaction_type(block_number);
 			let res = match should_send {
 				TransactionType::Signed => Self::fetch_price_and_send_signed(),
-				TransactionType::UnsignedForAny =>
-					Self::fetch_price_and_send_unsigned_for_any_account(block_number),
-				TransactionType::UnsignedForAll =>
-					Self::fetch_price_and_send_unsigned_for_all_accounts(block_number),
+				TransactionType::UnsignedForAny => {
+					Self::fetch_price_and_send_unsigned_for_any_account(block_number)
+				}
+				TransactionType::UnsignedForAll => {
+					Self::fetch_price_and_send_unsigned_for_all_accounts(block_number)
+				}
 				TransactionType::Raw => Self::fetch_price_and_send_raw_unsigned(block_number),
 				TransactionType::None => Ok(()),
 			};
@@ -302,7 +304,7 @@ pub mod pallet {
 				let signature_valid =
 					SignedPayload::<T>::verify::<T::AuthorityId>(payload, signature.clone());
 				if !signature_valid {
-					return InvalidTransaction::BadProof.into()
+					return InvalidTransaction::BadProof.into();
 				}
 				Self::validate_transaction_parameters(&payload.block_number, &payload.price)
 			} else if let Call::submit_price_unsigned { block_number, price: new_price } = call {
@@ -379,8 +381,9 @@ impl<T: Config> Pallet<T> {
 			match last_send {
 				// If we already have a value in storage and the block number is recent enough
 				// we avoid sending another transaction at this time.
-				Ok(Some(block)) if block_number < block + T::GracePeriod::get() =>
-					Err(RECENTLY_SENT),
+				Ok(Some(block)) if block_number < block + T::GracePeriod::get() => {
+					Err(RECENTLY_SENT)
+				}
 				// In every other case we attempt to acquire the lock and send a transaction.
 				_ => Ok(block_number),
 			}
@@ -413,7 +416,7 @@ impl<T: Config> Pallet<T> {
 				} else {
 					TransactionType::Raw
 				}
-			},
+			}
 			// We are in the grace period, we should not send a transaction this time.
 			Err(MutateStorageError::ValueFunctionFailed(RECENTLY_SENT)) => TransactionType::None,
 			// We wanted to send a transaction, but failed to write the block number (acquire a
@@ -431,7 +434,7 @@ impl<T: Config> Pallet<T> {
 		if !signer.can_sign() {
 			return Err(
 				"No local accounts available. Consider adding one via `author_insertKey` RPC.",
-			)?
+			)?;
 		}
 		// Make an external HTTP request to fetch the current price.
 		// Note this call will block until response is received.
@@ -464,7 +467,7 @@ impl<T: Config> Pallet<T> {
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if next_unsigned_at > block_number {
-			return Err("Too early to send unsigned transaction")
+			return Err("Too early to send unsigned transaction");
 		}
 
 		// Make an external HTTP request to fetch the current price.
@@ -498,7 +501,7 @@ impl<T: Config> Pallet<T> {
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if next_unsigned_at > block_number {
-			return Err("Too early to send unsigned transaction")
+			return Err("Too early to send unsigned transaction");
 		}
 
 		// Make an external HTTP request to fetch the current price.
@@ -528,7 +531,7 @@ impl<T: Config> Pallet<T> {
 		// anyway.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if next_unsigned_at > block_number {
-			return Err("Too early to send unsigned transaction")
+			return Err("Too early to send unsigned transaction");
 		}
 
 		// Make an external HTTP request to fetch the current price.
@@ -546,7 +549,7 @@ impl<T: Config> Pallet<T> {
 			);
 		for (_account_id, result) in transaction_results.into_iter() {
 			if result.is_err() {
-				return Err("Unable to submit transaction")
+				return Err("Unable to submit transaction");
 			}
 		}
 
@@ -582,7 +585,7 @@ impl<T: Config> Pallet<T> {
 		// Let's check the status code before we proceed to reading the response.
 		if response.code != 200 {
 			log::warn!("Unexpected status code: {}", response.code);
-			return Err(http::Error::Unknown)
+			return Err(http::Error::Unknown);
 		}
 
 		// Next we want to fully read the response body and collect it to a vector of bytes.
@@ -601,7 +604,7 @@ impl<T: Config> Pallet<T> {
 			None => {
 				log::warn!("Unable to extract price from the response: {:?}", body_str);
 				Err(http::Error::Unknown)
-			},
+			}
 		}?;
 
 		log::warn!("Got price: {} cents", price);
@@ -621,7 +624,7 @@ impl<T: Config> Pallet<T> {
 					JsonValue::Number(number) => number,
 					_ => return None,
 				}
-			},
+			}
 			_ => return None,
 		};
 
@@ -666,12 +669,12 @@ impl<T: Config> Pallet<T> {
 		// Now let's check if the transaction has any chance to succeed.
 		let next_unsigned_at = <NextUnsignedAt<T>>::get();
 		if &next_unsigned_at > block_number {
-			return InvalidTransaction::Stale.into()
+			return InvalidTransaction::Stale.into();
 		}
 		// Let's make sure to reject transactions from the future.
 		let current_block = <system::Pallet<T>>::block_number();
 		if &current_block < block_number {
-			return InvalidTransaction::Future.into()
+			return InvalidTransaction::Future.into();
 		}
 
 		// We prioritize transactions that are more far away from current average.

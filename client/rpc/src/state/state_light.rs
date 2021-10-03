@@ -297,8 +297,8 @@ where
 			Some(keys) if !keys.is_empty() => keys,
 			_ => {
 				warn!("Cannot subscribe to all keys on light client. Subscription rejected.");
-				return
-			},
+				return;
+			}
 		};
 
 		let keys = keys.iter().cloned().collect::<HashSet<_>>();
@@ -375,7 +375,7 @@ where
 		id: SubscriptionId,
 	) -> RpcResult<bool> {
 		if !self.subscriptions.cancel(id.clone()) {
-			return Ok(false)
+			return Ok(false);
 		}
 
 		// forget subscription keys
@@ -392,7 +392,7 @@ where
 					if entry.get().is_empty() {
 						entry.remove();
 					}
-				},
+				}
 			}
 		}
 
@@ -763,7 +763,7 @@ where
 
 	// if that isn't the first request - just listen for existing request' response
 	if !need_issue_request {
-		return Either::Right(receiver.then(|r| ready(r.unwrap_or(Err(())))))
+		return Either::Right(receiver.then(|r| ready(r.unwrap_or(Err(())))));
 	}
 
 	// that is the first request - issue remote request + notify all listeners on

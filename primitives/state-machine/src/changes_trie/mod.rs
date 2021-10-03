@@ -370,21 +370,22 @@ fn prepare_cached_build_data<Number: BlockNumber>(
 	// because it'll never be used again for building other tries
 	// => let's clear the cache
 	if !config.config.is_digest_build_enabled() {
-		return IncompleteCacheAction::Clear
+		return IncompleteCacheAction::Clear;
 	}
 
 	// when this is the last block where current configuration is active
 	// => let's clear the cache
 	if config.end.as_ref() == Some(&block) {
-		return IncompleteCacheAction::Clear
+		return IncompleteCacheAction::Clear;
 	}
 
 	// we do not need to cache anything when top-level digest trie is created, because
 	// it'll never be used again for building other tries
 	// => let's clear the cache
 	match config.config.digest_level_at_block(config.zero.clone(), block) {
-		Some((digest_level, _, _)) if digest_level == config.config.digest_levels =>
-			IncompleteCacheAction::Clear,
+		Some((digest_level, _, _)) if digest_level == config.config.digest_levels => {
+			IncompleteCacheAction::Clear
+		}
 		_ => IncompleteCacheAction::CacheBuildData(IncompleteCachedBuildData::new()),
 	}
 }

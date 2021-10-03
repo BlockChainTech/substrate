@@ -334,7 +334,7 @@ where
 		// this terminates the iterator the first time it fails.
 		if let Some(prefix) = self.prefix {
 			if !next_key.starts_with(&prefix.0[..]) {
-				return None
+				return None;
 			}
 		}
 		self.current_key = next_key.clone();
@@ -606,8 +606,9 @@ pub fn changes_tries_state_at_block<'a, Block: BlockT>(
 
 	let config_range = storage.configuration_at(block)?;
 	match config_range.config {
-		Some(config) =>
-			Ok(Some(ChangesTrieState::new(config, config_range.zero.0, storage.storage()))),
+		Some(config) => {
+			Ok(Some(ChangesTrieState::new(config, config_range.zero.0, storage.storage())))
+		}
 		None => Ok(None),
 	}
 }

@@ -56,11 +56,11 @@ where
 	let block_cht_num = block_to_cht_number(cht_size.clone(), block_num.clone())?;
 	let two = N::one() + N::one();
 	if block_cht_num < two {
-		return None
+		return None;
 	}
 	let cht_start = start_number(cht_size, block_cht_num.clone());
 	if cht_start != block_num {
-		return None
+		return None;
 	}
 
 	Some(block_cht_num - two)
@@ -74,7 +74,7 @@ where
 	let max_cht_number = block_to_cht_number(cht_size, max_canonical_block)?;
 	let two = N::one() + N::one();
 	if max_cht_number < two {
-		return None
+		return None;
 	}
 	Some(max_cht_number - two)
 }
@@ -268,7 +268,7 @@ where
 		pairs.push((encode_cht_key(start_num + hash_index).to_vec(), encode_cht_value(hash)));
 		hash_index += Header::Number::one();
 		if hash_index == cht_size {
-			break
+			break;
 		}
 	}
 

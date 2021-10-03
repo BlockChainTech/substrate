@@ -137,7 +137,7 @@ where
 					"Consider turning off offchain workers if they are not part of your runtime.";
 				log::error!("Unsupported Offchain Worker API version: {:?}. {}.", err, help);
 				0
-			},
+			}
 		};
 		debug!("Checking offchain workers at {:?}: version:{}", at, version);
 		if version > 0 {

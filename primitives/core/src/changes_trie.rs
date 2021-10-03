@@ -74,22 +74,22 @@ impl ChangesTrieConfiguration {
 			+ ::sp_std::cmp::PartialOrd
 			+ Zero,
 	{
-		block > zero &&
-			self.is_digest_build_enabled() &&
-			((block - zero) % self.digest_interval.into()).is_zero()
+		block > zero
+			&& self.is_digest_build_enabled()
+			&& ((block - zero) % self.digest_interval.into()).is_zero()
 	}
 
 	/// Returns max digest interval. One if digests are not created at all.
 	pub fn max_digest_interval(&self) -> u32 {
 		if !self.is_digest_build_enabled() {
-			return 1
+			return 1;
 		}
 
 		// we'll get >1 loop iteration only when bad configuration parameters are selected
 		let mut current_level = self.digest_levels;
 		loop {
 			if let Some(max_digest_interval) = self.digest_interval.checked_pow(current_level) {
-				return max_digest_interval
+				return max_digest_interval;
 			}
 
 			current_level -= 1;
@@ -112,7 +112,7 @@ impl ChangesTrieConfiguration {
 			+ Zero,
 	{
 		if block <= zero {
-			return None
+			return None;
 		}
 
 		let (next_begin, next_end) =
@@ -120,7 +120,7 @@ impl ChangesTrieConfiguration {
 
 		// if 'next' digest includes our block, then it is a also a previous digest
 		if next_end == block {
-			return Some(block)
+			return Some(block);
 		}
 
 		// if previous digest ends at zero block, then there are no previous digest
@@ -152,7 +152,7 @@ impl ChangesTrieConfiguration {
 			+ ::sp_std::ops::Mul<Output = Number>,
 	{
 		if !self.is_digest_build_enabled() {
-			return None
+			return None;
 		}
 
 		if block <= zero {
@@ -162,7 +162,7 @@ impl ChangesTrieConfiguration {
 		let max_digest_interval: Number = self.max_digest_interval().into();
 		let max_digests_since_zero = (block.clone() - zero.clone()) / max_digest_interval.clone();
 		if max_digests_since_zero == 0.into() {
-			return Some((zero.clone() + 1.into(), zero + max_digest_interval))
+			return Some((zero.clone() + 1.into(), zero + max_digest_interval));
 		}
 		let last_max_digest_block = zero + max_digests_since_zero * max_digest_interval.clone();
 		Some(if block == last_max_digest_block {
@@ -194,7 +194,7 @@ impl ChangesTrieConfiguration {
 			+ Zero,
 	{
 		if !self.is_digest_build_required_at_block(zero.clone(), block.clone()) {
-			return None
+			return None;
 		}
 
 		let relative_block = block - zero;
@@ -205,7 +205,9 @@ impl ChangesTrieConfiguration {
 			let new_digest_interval = match digest_interval.checked_mul(self.digest_interval) {
 				Some(new_digest_interval)
 					if (relative_block.clone() % new_digest_interval.into()).is_zero() =>
-					new_digest_interval,
+				{
+					new_digest_interval
+				}
 				_ => break,
 			};
 

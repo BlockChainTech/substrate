@@ -121,7 +121,7 @@ fn map_results(
 ) -> Result<HashMap<(String, String), Vec<BenchmarkData>>, std::io::Error> {
 	// Skip if batches is empty.
 	if batches.is_empty() {
-		return Err(io_error("empty batches"))
+		return Err(io_error("empty batches"));
 	}
 
 	let mut all_benchmarks = HashMap::<_, Vec<BenchmarkData>>::new();
@@ -129,7 +129,7 @@ fn map_results(
 	for batch in batches {
 		// Skip if there are no results
 		if batch.time_results.is_empty() {
-			continue
+			continue;
 		}
 
 		let pallet_string = String::from_utf8(batch.pallet.clone()).unwrap();
@@ -269,7 +269,7 @@ pub fn write_results(
 		Some(header_file) => {
 			let text = fs::read_to_string(header_file)?;
 			text
-		},
+		}
 		None => String::new(),
 	};
 
@@ -379,13 +379,13 @@ pub(crate) fn add_storage_comments(
 		for (key, reads, writes, whitelisted) in &result.keys {
 			// skip keys which are whitelisted
 			if *whitelisted {
-				continue
+				continue;
 			}
 			let prefix_length = key.len().min(32);
 			let prefix = key[0..prefix_length].to_vec();
 			if identified.contains(&prefix) {
 				// skip adding comments for keys we already identified
-				continue
+				continue;
 			} else {
 				// track newly identified keys
 				identified.insert(prefix.clone());
@@ -402,7 +402,7 @@ pub(crate) fn add_storage_comments(
 						writes,
 					);
 					comments.push(comment)
-				},
+				}
 				None => {
 					let comment = format!(
 						"Storage: unknown [0x{}] (r:{} w:{})",
@@ -411,7 +411,7 @@ pub(crate) fn add_storage_comments(
 						writes,
 					);
 					comments.push(comment)
-				},
+				}
 			}
 		}
 	}
@@ -527,7 +527,7 @@ mod test {
 			benchmark: [benchmark.to_vec(), b"_benchmark".to_vec()].concat(),
 			time_results: results.clone(),
 			db_results: results,
-		}
+		};
 	}
 
 	fn check_data(benchmark: &BenchmarkData, component: &str, base: u128, slope: u128) {

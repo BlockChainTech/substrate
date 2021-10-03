@@ -268,8 +268,9 @@ mod execution {
 			self,
 		) -> ExecutionManager<DefaultHandler<R, E>> {
 			match self {
-				ExecutionStrategy::AlwaysWasm =>
-					ExecutionManager::AlwaysWasm(BackendTrustLevel::Trusted),
+				ExecutionStrategy::AlwaysWasm => {
+					ExecutionManager::AlwaysWasm(BackendTrustLevel::Trusted)
+				}
 				ExecutionStrategy::NativeWhenPossible => ExecutionManager::NativeWhenPossible,
 				ExecutionStrategy::NativeElseWasm => ExecutionManager::NativeElseWasm,
 				ExecutionStrategy::Both => ExecutionManager::Both(|wasm_result, native_result| {
@@ -498,9 +499,10 @@ mod execution {
 				self.overlay.rollback_transaction().expect(PROOF_CLOSE_TRANSACTION);
 				let (wasm_result, _) = self.execute_aux(false, native_call);
 
-				if (result.is_ok() &&
-					wasm_result.is_ok() && result.as_ref().ok() == wasm_result.as_ref().ok()) ||
-					result.is_err() && wasm_result.is_err()
+				if (result.is_ok()
+					&& wasm_result.is_ok()
+					&& result.as_ref().ok() == wasm_result.as_ref().ok())
+					|| result.is_err() && wasm_result.is_err()
 				{
 					result
 				} else {
@@ -564,16 +566,18 @@ mod execution {
 				match manager {
 					ExecutionManager::Both(on_consensus_failure) => self
 						.execute_call_with_both_strategy(native_call.take(), on_consensus_failure),
-					ExecutionManager::NativeElseWasm =>
-						self.execute_call_with_native_else_wasm_strategy(native_call.take()),
+					ExecutionManager::NativeElseWasm => {
+						self.execute_call_with_native_else_wasm_strategy(native_call.take())
+					}
 					ExecutionManager::AlwaysWasm(trust_level) => {
 						let _abort_guard = match trust_level {
 							BackendTrustLevel::Trusted => None,
-							BackendTrustLevel::Untrusted =>
-								Some(sp_panic_handler::AbortGuard::never_abort()),
+							BackendTrustLevel::Untrusted => {
+								Some(sp_panic_handler::AbortGuard::never_abort())
+							}
 						};
 						self.execute_aux(false, native_call).0
-					},
+					}
 					ExecutionManager::NativeWhenPossible => self.execute_aux(true, native_call).0,
 				}
 			};
@@ -1047,7 +1051,7 @@ mod tests {
 				(true, true, _, Some(call)) => {
 					let res = sp_externalities::set_and_run_with_externalities(ext, || call());
 					(res.map(NativeOrEncoded::Native).map_err(|_| 0), true)
-				},
+				}
 				(true, true, _, None) | (false, _, true, None) => (
 					Ok(NativeOrEncoded::Encoded(vec![
 						ext.storage(b"value1").unwrap()[0] + ext.storage(b"value2").unwrap()[0],
@@ -1644,7 +1648,7 @@ mod tests {
 									key.clone(),
 									Some(value.clone()),
 								));
-								break
+								break;
 							}
 						}
 					}

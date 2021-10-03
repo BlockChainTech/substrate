@@ -51,8 +51,9 @@ impl<Block: BlockT, T: CacheItemT> Entry<Block, T> {
 		match value {
 			Some(value) => match self.value == value {
 				true => None,
-				false =>
-					Some(StorageEntry { prev_valid_from: Some(self.valid_from.clone()), value }),
+				false => {
+					Some(StorageEntry { prev_valid_from: Some(self.valid_from.clone()), value })
+				}
 			},
 			None => None,
 		}
@@ -84,14 +85,14 @@ impl<Block: BlockT, T: CacheItemT> Entry<Block, T> {
 		let mut current = self.valid_from.clone();
 		if block >= self.valid_from.number {
 			let value = self.value.clone();
-			return Ok(Some((Entry { valid_from: current, value }, next)))
+			return Ok(Some((Entry { valid_from: current, value }, next)));
 		}
 
 		// else - travel back in time
 		loop {
 			let entry = storage.require_entry(&current)?;
 			if block >= current.number {
-				return Ok(Some((Entry { valid_from: current, value: entry.value }, next)))
+				return Ok(Some((Entry { valid_from: current, value: entry.value }, next)));
 			}
 
 			next = Some(current);

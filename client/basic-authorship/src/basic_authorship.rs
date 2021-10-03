@@ -321,17 +321,17 @@ where
 			match block_builder.push(inherent) {
 				Err(ApplyExtrinsicFailed(Validity(e))) if e.exhausted_resources() => {
 					warn!("⚠️  Dropping non-mandatory inherent from overweight block.")
-				},
+				}
 				Err(ApplyExtrinsicFailed(Validity(e))) if e.was_mandatory() => {
 					error!(
 						"❌️ Mandatory inherent extrinsic returned error. Block cannot be produced."
 					);
 					Err(ApplyExtrinsicFailed(Validity(e)))?
-				},
+				}
 				Err(e) => {
 					warn!("❗️ Inherent extrinsic returned unexpected error: {}. Dropping.", e);
-				},
-				Ok(_) => {},
+				}
+				Ok(_) => {}
 			}
 		}
 
@@ -369,7 +369,7 @@ where
 					"Consensus deadline reached when pushing block transactions, \
 					proceeding with proposing."
 				);
-				break
+				break;
 			}
 
 			let pending_tx_data = pending_tx.data().clone();
@@ -386,11 +386,11 @@ where
 						 but will try {} more transactions before quitting.",
 						MAX_SKIPPED_TRANSACTIONS - skipped,
 					);
-					continue
+					continue;
 				} else {
 					debug!("Reached block size limit, proceeding with proposing.");
 					hit_block_size_limit = true;
-					break
+					break;
 				}
 			}
 
@@ -399,7 +399,7 @@ where
 				Ok(()) => {
 					transaction_pushed = true;
 					debug!("[{:?}] Pushed to the block.", pending_tx_hash);
-				},
+				}
 				Err(ApplyExtrinsicFailed(Validity(e))) if e.exhausted_resources() => {
 					pending_iterator.report_invalid(&pending_tx);
 					if skipped < MAX_SKIPPED_TRANSACTIONS {
@@ -410,9 +410,9 @@ where
 						);
 					} else {
 						debug!("Block is full, proceed with proposing.");
-						break
+						break;
 					}
-				},
+				}
 				Err(e) if skipped > 0 => {
 					pending_iterator.report_invalid(&pending_tx);
 					trace!(
@@ -420,12 +420,12 @@ where
 						pending_tx_hash,
 						e
 					);
-				},
+				}
 				Err(e) => {
 					pending_iterator.report_invalid(&pending_tx);
 					debug!("[{:?}] Invalid transaction: {}", pending_tx_hash, e);
 					unqueue_invalid.push(pending_tx_hash);
-				},
+				}
 			}
 		}
 
@@ -554,7 +554,7 @@ mod tests {
 				let mut value = cell.lock();
 				if !value.0 {
 					value.0 = true;
-					return value.1
+					return value.1;
 				}
 				let old = value.1;
 				let new = old + time::Duration::from_secs(2);
@@ -598,7 +598,7 @@ mod tests {
 				let mut value = cell.lock();
 				if !value.0 {
 					value.0 = true;
-					return value.1
+					return value.1;
 				}
 				let new = value.1 + time::Duration::from_secs(160);
 				*value = (true, new);
@@ -784,13 +784,13 @@ mod tests {
 			.map(|v| Extrinsic::IncludeData(vec![v as u8; 10]))
 			.collect::<Vec<_>>();
 
-		let block_limit = genesis_header.encoded_size() +
-			extrinsics
+		let block_limit = genesis_header.encoded_size()
+			+ extrinsics
 				.iter()
 				.take(extrinsics_num - 1)
 				.map(Encode::encoded_size)
-				.sum::<usize>() +
-			Vec::<Extrinsic>::new().encoded_size();
+				.sum::<usize>()
+			+ Vec::<Extrinsic>::new().encoded_size();
 
 		block_on(txpool.submit_at(&BlockId::number(0), SOURCE, extrinsics)).unwrap();
 

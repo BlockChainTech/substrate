@@ -422,7 +422,7 @@ fn execute_sandboxed(
 		args: &[Value],
 	) -> Result<sp_sandbox::ReturnValue, sp_sandbox::HostError> {
 		if args.len() != 1 {
-			return Err(sp_sandbox::HostError)
+			return Err(sp_sandbox::HostError);
 		}
 		let condition = args[0].as_i32().ok_or_else(|| sp_sandbox::HostError)?;
 		if condition != 0 {
@@ -436,7 +436,7 @@ fn execute_sandboxed(
 		args: &[Value],
 	) -> Result<sp_sandbox::ReturnValue, sp_sandbox::HostError> {
 		if args.len() != 1 {
-			return Err(sp_sandbox::HostError)
+			return Err(sp_sandbox::HostError);
 		}
 		let inc_by = args[0].as_i32().ok_or_else(|| sp_sandbox::HostError)?;
 		e.counter += inc_by as u32;

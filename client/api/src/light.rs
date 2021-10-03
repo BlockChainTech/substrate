@@ -300,8 +300,9 @@ pub fn future_header<Block: BlockT, F: Fetcher<Block>>(
 	use futures::future::{ready, Either, FutureExt};
 
 	match blockchain.header(id) {
-		Ok(LocalOrRemote::Remote(request)) =>
-			Either::Left(fetcher.remote_header(request).then(|header| ready(header.map(Some)))),
+		Ok(LocalOrRemote::Remote(request)) => {
+			Either::Left(fetcher.remote_header(request).then(|header| ready(header.map(Some))))
+		}
 		Ok(LocalOrRemote::Unknown) => Either::Right(ready(Ok(None))),
 		Ok(LocalOrRemote::Local(local_header)) => Either::Right(ready(Ok(Some(local_header)))),
 		Err(err) => Either::Right(ready(Err(err))),

@@ -261,9 +261,10 @@ impl<R: PartialEq + codec::Decode> PartialEq for NativeOrEncoded<R> {
 	fn eq(&self, other: &Self) -> bool {
 		match (self, other) {
 			(NativeOrEncoded::Native(l), NativeOrEncoded::Native(r)) => l == r,
-			(NativeOrEncoded::Native(n), NativeOrEncoded::Encoded(e)) |
-			(NativeOrEncoded::Encoded(e), NativeOrEncoded::Native(n)) =>
-				Some(n) == codec::Decode::decode(&mut &e[..]).ok().as_ref(),
+			(NativeOrEncoded::Native(n), NativeOrEncoded::Encoded(e))
+			| (NativeOrEncoded::Encoded(e), NativeOrEncoded::Native(n)) => {
+				Some(n) == codec::Decode::decode(&mut &e[..]).ok().as_ref()
+			}
 			(NativeOrEncoded::Encoded(l), NativeOrEncoded::Encoded(r)) => l == r,
 		}
 	}

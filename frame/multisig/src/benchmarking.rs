@@ -43,7 +43,7 @@ fn setup_multi<T: Config>(s: u32, z: u32) -> Result<(Vec<T::AccountId>, Vec<u8>)
 	let call: <T as Config>::Call =
 		frame_system::Call::<T>::remark { remark: vec![0; z as usize] }.into();
 	let call_data = call.encode();
-	return Ok((signatories, call_data))
+	return Ok((signatories, call_data));
 }
 
 benchmarks! {

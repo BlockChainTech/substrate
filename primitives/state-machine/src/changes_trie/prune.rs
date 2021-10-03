@@ -49,7 +49,7 @@ pub fn prune<H: Hasher, Number: BlockNumber, F: FnMut(H::Out)>(
 	let mut block = first;
 	loop {
 		if block >= last.clone() + One::one() {
-			break
+			break;
 		}
 
 		let prev_block = block.clone();
@@ -62,8 +62,8 @@ pub fn prune<H: Hasher, Number: BlockNumber, F: FnMut(H::Out)>(
 			Err(error) => {
 				// try to delete other tries
 				warn!(target: "trie", "Failed to read changes trie root from DB: {}", error);
-				continue
-			},
+				continue;
+			}
 		};
 		let children_roots = {
 			let trie_storage = TrieBackendEssence::<_, H>::new(

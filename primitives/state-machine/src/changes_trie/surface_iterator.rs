@@ -111,10 +111,10 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 	end: Number,
 ) -> Result<(Number, Number, u32, Option<u32>), String> {
 	if end > max || begin > end {
-		return Err(format!("invalid changes range: {}..{}/{}", begin, end, max))
+		return Err(format!("invalid changes range: {}..{}/{}", begin, end, max));
 	}
-	if begin <= config.zero ||
-		config.end.as_ref().map(|config_end| end > *config_end).unwrap_or(false)
+	if begin <= config.zero
+		|| config.end.as_ref().map(|config_end| end > *config_end).unwrap_or(false)
 	{
 		return Err(format!(
 			"changes trie range is not covered by configuration: {}..{}/{}..{}",
@@ -125,7 +125,7 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 				Some(config_end) => format!("{}", config_end),
 				None => "None".into(),
 			}
-		))
+		));
 	}
 
 	let mut digest_level = 0u32;
@@ -145,10 +145,10 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 					digest_interval
 				}
 			};
-			let new_digest_begin = config.zero.clone() +
-				((current.clone() - One::one() - config.zero.clone()) /
-					new_digest_interval.into()) *
-					new_digest_interval.into();
+			let new_digest_begin = config.zero.clone()
+				+ ((current.clone() - One::one() - config.zero.clone())
+					/ new_digest_interval.into())
+					* new_digest_interval.into();
 			let new_digest_end = new_digest_begin.clone() + new_digest_interval.into();
 			let new_current = new_digest_begin.clone() + new_digest_interval.into();
 
@@ -160,8 +160,8 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 						skewed_digest_end.clone(),
 					);
 					if let Some(skewed_digest_start) = skewed_digest_start {
-						let skewed_digest_range = (skewed_digest_end.clone() -
-							skewed_digest_start.clone())
+						let skewed_digest_range = (skewed_digest_end.clone()
+							- skewed_digest_start.clone())
 						.try_into()
 						.ok()
 						.expect(
@@ -173,7 +173,7 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 							skewed_digest_start,
 							skewed_digest_range,
 							None,
-						))
+						));
 					}
 				}
 			}
@@ -183,7 +183,7 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 				if begin < new_digest_begin {
 					current_begin = new_digest_begin;
 				}
-				break
+				break;
 			}
 
 			// we can (and will) use this digest
@@ -195,7 +195,7 @@ fn lower_bound_max_digest<'a, Number: BlockNumber>(
 
 			// if current digest covers the whole range => no need to use next level digest
 			if current_begin <= begin && new_digest_end >= end {
-				break
+				break;
 			}
 		}
 	}

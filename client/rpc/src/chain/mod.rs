@@ -98,7 +98,7 @@ where
 					.header(BlockId::number(block_num))
 					.map_err(client_err)?
 					.map(|h| h.hash()))
-			},
+			}
 		}
 	}
 
@@ -257,8 +257,9 @@ where
 	) -> Result<ListOrValue<Option<Block::Hash>>> {
 		match number {
 			None => self.backend.block_hash(None).map(ListOrValue::Value),
-			Some(ListOrValue::Value(number)) =>
-				self.backend.block_hash(Some(number)).map(ListOrValue::Value),
+			Some(ListOrValue::Value(number)) => {
+				self.backend.block_hash(Some(number)).map(ListOrValue::Value)
+			}
 			Some(ListOrValue::List(list)) => Ok(ListOrValue::List(
 				list.into_iter()
 					.map(|number| self.backend.block_hash(Some(number)))

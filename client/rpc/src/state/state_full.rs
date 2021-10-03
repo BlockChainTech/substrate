@@ -129,7 +129,7 @@ where
 				&from_meta,
 				&to_meta,
 				"from number > to number".to_owned(),
-			))
+			));
 		}
 
 		// check if we can get from `to` to `from` by going through parent_hashes.
@@ -150,7 +150,7 @@ where
 					&from_meta,
 					&to_meta,
 					"from and to are on different forks".to_owned(),
-				))
+				));
 			}
 			hashes.reverse();
 			hashes
@@ -232,7 +232,7 @@ where
 			let key_changes = self.client.key_changes(begin, end, None, key).map_err(client_err)?;
 			for (block, _) in key_changes.into_iter().rev() {
 				if last_block == Some(block) {
-					continue
+					continue;
 				}
 
 				let block_hash =
@@ -240,7 +240,7 @@ where
 				let id = BlockId::Hash(block_hash);
 				let value_at_block = self.client.storage(&id, key).map_err(client_err)?;
 				if last_value == value_at_block {
-					continue
+					continue;
 				}
 
 				changes_map
@@ -373,7 +373,7 @@ where
 		match self.client.storage(&BlockId::Hash(block), &key) {
 			Ok(Some(d)) => return async move { Ok(Some(d.0.len() as u64)) }.boxed(),
 			Err(e) => return async move { Err(client_err(e)) }.boxed(),
-			Ok(None) => {},
+			Ok(None) => {}
 		}
 
 		let r = self
@@ -533,8 +533,8 @@ where
 			Ok(stream) => stream,
 			Err(err) => {
 				let _ = subscriber.reject(client_err(err).into());
-				return
-			},
+				return;
+			}
 		};
 
 		// initial values
@@ -630,8 +630,9 @@ where
 			.block_or_best(block)
 			.and_then(|block| {
 				let child_info = match ChildType::from_prefixed_key(&storage_key) {
-					Some((ChildType::ParentKeyId, storage_key)) =>
-						ChildInfo::new_default(storage_key),
+					Some((ChildType::ParentKeyId, storage_key)) => {
+						ChildInfo::new_default(storage_key)
+					}
 					None => return Err(sp_blockchain::Error::InvalidChildStorageKey),
 				};
 				self.client
@@ -658,8 +659,9 @@ where
 			.block_or_best(block)
 			.and_then(|block| {
 				let child_info = match ChildType::from_prefixed_key(&storage_key) {
-					Some((ChildType::ParentKeyId, storage_key)) =>
-						ChildInfo::new_default(storage_key),
+					Some((ChildType::ParentKeyId, storage_key)) => {
+						ChildInfo::new_default(storage_key)
+					}
 					None => return Err(sp_blockchain::Error::InvalidChildStorageKey),
 				};
 				self.client.child_storage_keys(&BlockId::Hash(block), &child_info, &prefix)
@@ -681,8 +683,9 @@ where
 			.block_or_best(block)
 			.and_then(|block| {
 				let child_info = match ChildType::from_prefixed_key(&storage_key) {
-					Some((ChildType::ParentKeyId, storage_key)) =>
-						ChildInfo::new_default(storage_key),
+					Some((ChildType::ParentKeyId, storage_key)) => {
+						ChildInfo::new_default(storage_key)
+					}
 					None => return Err(sp_blockchain::Error::InvalidChildStorageKey),
 				};
 				self.client.child_storage_keys_iter(
@@ -708,8 +711,9 @@ where
 			.block_or_best(block)
 			.and_then(|block| {
 				let child_info = match ChildType::from_prefixed_key(&storage_key) {
-					Some((ChildType::ParentKeyId, storage_key)) =>
-						ChildInfo::new_default(storage_key),
+					Some((ChildType::ParentKeyId, storage_key)) => {
+						ChildInfo::new_default(storage_key)
+					}
 					None => return Err(sp_blockchain::Error::InvalidChildStorageKey),
 				};
 				self.client.child_storage(&BlockId::Hash(block), &child_info, &key)
@@ -726,8 +730,9 @@ where
 		keys: Vec<StorageKey>,
 	) -> FutureResult<Vec<Option<StorageData>>> {
 		let child_info = match ChildType::from_prefixed_key(&storage_key) {
-			Some((ChildType::ParentKeyId, storage_key)) =>
-				Arc::new(ChildInfo::new_default(storage_key)),
+			Some((ChildType::ParentKeyId, storage_key)) => {
+				Arc::new(ChildInfo::new_default(storage_key))
+			}
 			None => return err(client_err(sp_blockchain::Error::InvalidChildStorageKey)).boxed(),
 		};
 		let block = match self.block_or_best(block) {
@@ -756,8 +761,9 @@ where
 			.block_or_best(block)
 			.and_then(|block| {
 				let child_info = match ChildType::from_prefixed_key(&storage_key) {
-					Some((ChildType::ParentKeyId, storage_key)) =>
-						ChildInfo::new_default(storage_key),
+					Some((ChildType::ParentKeyId, storage_key)) => {
+						ChildInfo::new_default(storage_key)
+					}
 					None => return Err(sp_blockchain::Error::InvalidChildStorageKey),
 				};
 				self.client.child_storage_hash(&BlockId::Hash(block), &child_info, &key)

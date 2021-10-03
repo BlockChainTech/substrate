@@ -148,7 +148,7 @@ impl core::Benchmark for ImportBenchmark {
 							node_runtime::System::events().len(),
 							(self.block.extrinsics.len() - 1) * 5 + 1,
 						);
-					},
+					}
 					BlockType::Noop => {
 						assert_eq!(
 							node_runtime::System::events().len(),
@@ -159,8 +159,8 @@ impl core::Benchmark for ImportBenchmark {
 							//    - extrinsic success
 							(self.block.extrinsics.len() - 1) * 2 + 1,
 						);
-					},
-					_ => {},
+					}
+					_ => {}
 				}
 			});
 

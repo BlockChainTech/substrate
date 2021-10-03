@@ -493,7 +493,7 @@ pub trait Misc {
 					err,
 				);
 				None
-			},
+			}
 		}
 	}
 }

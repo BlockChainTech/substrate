@@ -185,10 +185,12 @@ impl PeersClient {
 			None => return false,
 		};
 		match self {
-			PeersClient::Full(_client, backend) =>
-				backend.have_state_at(&header.hash(), *header.number()),
-			PeersClient::Light(_client, backend) =>
-				backend.have_state_at(&header.hash(), *header.number()),
+			PeersClient::Full(_client, backend) => {
+				backend.have_state_at(&header.hash(), *header.number())
+			}
+			PeersClient::Light(_client, backend) => {
+				backend.have_state_at(&header.hash(), *header.number())
+			}
 		}
 	}
 
@@ -220,10 +222,12 @@ impl PeersClient {
 		notify: bool,
 	) -> ClientResult<()> {
 		match *self {
-			PeersClient::Full(ref client, ref _backend) =>
-				client.finalize_block(id, justification, notify),
-			PeersClient::Light(ref client, ref _backend) =>
-				client.finalize_block(id, justification, notify),
+			PeersClient::Full(ref client, ref _backend) => {
+				client.finalize_block(id, justification, notify)
+			}
+			PeersClient::Light(ref client, ref _backend) => {
+				client.finalize_block(id, justification, notify)
+			}
 		}
 	}
 }
@@ -249,10 +253,12 @@ impl BlockImport<Block> for PeersClient {
 		cache: HashMap<well_known_cache_keys::Id, Vec<u8>>,
 	) -> Result<ImportResult, Self::Error> {
 		match self {
-			PeersClient::Full(client, _) =>
-				client.import_block(block.clear_storage_changes_and_mutate(), cache).await,
-			PeersClient::Light(client, _) =>
-				client.import_block(block.clear_storage_changes_and_mutate(), cache).await,
+			PeersClient::Full(client, _) => {
+				client.import_block(block.clear_storage_changes_and_mutate(), cache).await
+			}
+			PeersClient::Light(client, _) => {
+				client.import_block(block.clear_storage_changes_and_mutate(), cache).await
+			}
 		}
 	}
 }
@@ -969,14 +975,14 @@ where
 		let mut highest = None;
 		for peer in self.peers().iter() {
 			if peer.is_major_syncing() || peer.network.num_queued_blocks() != 0 {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 			if peer.network.num_sync_requests() != 0 {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 			match (highest, peer.client.info().best_hash) {
 				(None, b) => highest = Some(b),
-				(Some(ref a), ref b) if a == b => {},
+				(Some(ref a), ref b) if a == b => {}
 				(Some(_), _) => return Poll::Pending,
 			}
 		}
@@ -991,10 +997,10 @@ where
 
 		for peer in self.peers().iter() {
 			if peer.is_major_syncing() || peer.network.num_queued_blocks() != 0 {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 			if peer.network.num_sync_requests() != 0 {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 		}
 		Poll::Ready(())
@@ -1008,7 +1014,7 @@ where
 
 		let num_peers = self.peers().len();
 		if self.peers().iter().all(|p| p.num_peers() == num_peers - 1) {
-			return Poll::Ready(())
+			return Poll::Ready(());
 		}
 
 		Poll::Pending

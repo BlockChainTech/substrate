@@ -105,7 +105,7 @@ where
 							})
 						})
 						.map_err(client_err)
-					},
+					}
 					None => Ok(None),
 				}
 			})

@@ -49,7 +49,7 @@ fn sync_peers_works() {
 		net.poll(cx);
 		for peer in 0..3 {
 			if net.peer(peer).num_peers() != 2 {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 		}
 		Poll::Ready(())
@@ -75,12 +75,12 @@ fn sync_cycle_from_offline_to_syncing_to_offline() {
 		for peer in 0..3 {
 			// Online
 			if net.peer(peer).is_offline() {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 			if peer < 2 {
 				// Major syncing.
 				if net.peer(peer).blocks_count() < 100 && !net.peer(peer).is_major_syncing() {
-					return Poll::Pending
+					return Poll::Pending;
 				}
 			}
 		}
@@ -92,7 +92,7 @@ fn sync_cycle_from_offline_to_syncing_to_offline() {
 		net.poll(cx);
 		for peer in 0..3 {
 			if net.peer(peer).is_major_syncing() {
-				return Poll::Pending
+				return Poll::Pending;
 			}
 		}
 		Poll::Ready(())
@@ -279,15 +279,15 @@ fn sync_justifications() {
 		net.poll(cx);
 
 		for height in (10..21).step_by(5) {
-			if net.peer(0).client().justifications(&BlockId::Number(height)).unwrap() !=
-				Some(Justifications::from((*b"FRNK", Vec::new())))
+			if net.peer(0).client().justifications(&BlockId::Number(height)).unwrap()
+				!= Some(Justifications::from((*b"FRNK", Vec::new())))
 			{
-				return Poll::Pending
+				return Poll::Pending;
 			}
-			if net.peer(1).client().justifications(&BlockId::Number(height)).unwrap() !=
-				Some(Justifications::from((*b"FRNK", Vec::new())))
+			if net.peer(1).client().justifications(&BlockId::Number(height)).unwrap()
+				!= Some(Justifications::from((*b"FRNK", Vec::new())))
 			{
-				return Poll::Pending
+				return Poll::Pending;
 			}
 		}
 
@@ -321,10 +321,10 @@ fn sync_justifications_across_forks() {
 	block_on(futures::future::poll_fn::<(), _>(|cx| {
 		net.poll(cx);
 
-		if net.peer(0).client().justifications(&BlockId::Number(10)).unwrap() ==
-			Some(Justifications::from((*b"FRNK", Vec::new()))) &&
-			net.peer(1).client().justifications(&BlockId::Number(10)).unwrap() ==
-				Some(Justifications::from((*b"FRNK", Vec::new())))
+		if net.peer(0).client().justifications(&BlockId::Number(10)).unwrap()
+			== Some(Justifications::from((*b"FRNK", Vec::new())))
+			&& net.peer(1).client().justifications(&BlockId::Number(10)).unwrap()
+				== Some(Justifications::from((*b"FRNK", Vec::new())))
 		{
 			Poll::Ready(())
 		} else {
@@ -466,7 +466,7 @@ fn can_sync_small_non_best_forks() {
 
 		assert!(net.peer(0).client().header(&BlockId::Hash(small_hash)).unwrap().is_some());
 		if net.peer(1).client().header(&BlockId::Hash(small_hash)).unwrap().is_none() {
-			return Poll::Pending
+			return Poll::Pending;
 		}
 		Poll::Ready(())
 	}));
@@ -477,7 +477,7 @@ fn can_sync_small_non_best_forks() {
 	block_on(futures::future::poll_fn::<(), _>(|cx| {
 		net.poll(cx);
 		if net.peer(1).client().header(&BlockId::Hash(another_fork)).unwrap().is_none() {
-			return Poll::Pending
+			return Poll::Pending;
 		}
 		Poll::Ready(())
 	}));
@@ -597,7 +597,7 @@ fn can_sync_explicit_forks() {
 
 		assert!(net.peer(0).client().header(&BlockId::Hash(small_hash)).unwrap().is_some());
 		if net.peer(1).client().header(&BlockId::Hash(small_hash)).unwrap().is_none() {
-			return Poll::Pending
+			return Poll::Pending;
 		}
 		Poll::Ready(())
 	}));
@@ -1039,10 +1039,10 @@ fn multiple_requests_are_accepted_as_long_as_they_are_not_fulfilled() {
 	block_on(futures::future::poll_fn::<(), _>(|cx| {
 		net.poll(cx);
 
-		if net.peer(1).client().justifications(&BlockId::Number(10)).unwrap() !=
-			Some(Justifications::from((*b"FRNK", Vec::new())))
+		if net.peer(1).client().justifications(&BlockId::Number(10)).unwrap()
+			!= Some(Justifications::from((*b"FRNK", Vec::new())))
 		{
-			return Poll::Pending
+			return Poll::Pending;
 		}
 
 		Poll::Ready(())
@@ -1066,7 +1066,7 @@ fn syncs_all_forks_from_single_peer() {
 	block_on(futures::future::poll_fn::<(), _>(|cx| {
 		net.poll(cx);
 		if net.peer(1).network().best_seen_block() != Some(12) {
-			return Poll::Pending
+			return Poll::Pending;
 		}
 		Poll::Ready(())
 	}));

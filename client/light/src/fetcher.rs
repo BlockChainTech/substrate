@@ -79,8 +79,8 @@ impl<E, B: BlockT, S: BlockchainStorage<B>> LightDataChecker<E, B, S> {
 	) -> ClientResult<Vec<(NumberFor<B>, u32)>> {
 		// since we need roots of all changes tries for the range begin..max
 		// => remote node can't use max block greater that one that we have passed
-		if remote_proof.max_block > request.max_block.0 ||
-			remote_proof.max_block < request.last_block.0
+		if remote_proof.max_block > request.max_block.0
+			|| remote_proof.max_block < request.last_block.0
 		{
 			return Err(ClientError::ChangesTrieAccessFailed(format!(
 				"Invalid max_block used by the remote node: {}. Local: {}..{}..{}",
@@ -89,7 +89,7 @@ impl<E, B: BlockT, S: BlockchainStorage<B>> LightDataChecker<E, B, S> {
 				request.last_block.0,
 				request.max_block.0,
 			))
-			.into())
+			.into());
 		}
 
 		// check if remote node has responded with extra changes trie roots proofs
@@ -197,7 +197,7 @@ impl<E, B: BlockT, S: BlockchainStorage<B>> LightDataChecker<E, B, S> {
 					// normally this happens in when the proving backend is created, but since
 					// we share the storage for multiple checks, do it here
 					if !storage.contains(&local_cht_root, EMPTY_PREFIX) {
-						return Err(ClientError::InvalidCHTProof.into())
+						return Err(ClientError::InvalidCHTProof.into());
 					}
 
 					// check proof for single changes trie root

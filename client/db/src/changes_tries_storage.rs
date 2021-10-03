@@ -181,7 +181,7 @@ impl<Block: BlockT> DbChangesTrieStorage<Block> {
 		let new_configuration = match new_configuration {
 			Some(new_configuration) => new_configuration,
 			None if !finalized => return Ok(DbCacheTransactionOps::empty().into()),
-			None =>
+			None => {
 				return self.finalize(
 					tx,
 					parent_block.hash,
@@ -189,7 +189,8 @@ impl<Block: BlockT> DbChangesTrieStorage<Block> {
 					block.number,
 					Some(new_header),
 					cache_tx,
-				),
+				)
+			}
 		};
 
 		// update configuration cache
@@ -242,7 +243,7 @@ impl<Block: BlockT> DbChangesTrieStorage<Block> {
 		if cache_tx.is_some() {
 			if let Some(new_header) = new_header {
 				if new_header.hash() == block_hash {
-					return Ok(cache_tx.expect("guarded by cache_tx.is_some(); qed"))
+					return Ok(cache_tx.expect("guarded by cache_tx.is_some(); qed"));
 				}
 			}
 		}
@@ -323,7 +324,7 @@ impl<Block: BlockT> DbChangesTrieStorage<Block> {
 			// 2) or we are (or were) in period where changes tries are disabled
 			if let Some((begin, end)) = tries_meta.oldest_digest_range {
 				if block_num <= end || block_num - end <= min_blocks_to_keep.into() {
-					break
+					break;
 				}
 
 				tries_meta.oldest_pruned_digest_range_end = end;
@@ -364,7 +365,7 @@ impl<Block: BlockT> DbChangesTrieStorage<Block> {
 						end: None,
 						config,
 					})
-				},
+				}
 				_ if config_for_new_block => self.configuration_at(&BlockId::Hash(
 					*new_header
 						.expect("config_for_new_block is only true when new_header is passed; qed")
@@ -389,11 +390,11 @@ impl<Block: BlockT> DbChangesTrieStorage<Block> {
 				}
 
 				tries_meta.oldest_digest_range = Some(oldest_digest_range);
-				continue
+				continue;
 			}
 
 			tries_meta.oldest_digest_range = None;
-			break
+			break;
 		}
 
 		write_tries_meta(tx, self.meta_column, &*tries_meta);
@@ -461,7 +462,7 @@ impl<Block: BlockT> sp_state_machine::ChangesTrieRootsStorage<HashFor<Block>, Nu
 			return Err(format!(
 				"Can't get changes trie root at {} using anchor at {}",
 				block, anchor.number
-			))
+			));
 		}
 
 		// we need to get hash of the block to resolve changes trie root
@@ -779,8 +780,9 @@ mod tests {
 				.log(DigestItem::as_changes_trie_root)
 				.cloned();
 			match trie_root {
-				Some(trie_root) =>
-					backend.changes_tries_storage.get(&trie_root, EMPTY_PREFIX).unwrap().is_none(),
+				Some(trie_root) => {
+					backend.changes_tries_storage.get(&trie_root, EMPTY_PREFIX).unwrap().is_none()
+				}
 				None => true,
 			}
 		};

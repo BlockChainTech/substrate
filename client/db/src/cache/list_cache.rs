@@ -167,7 +167,7 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 			// BUT since we're not guaranteeing to provide correct values for forks
 			// behind the finalized block, check if the block is finalized first
 			if !chain::is_finalized_block(&self.storage, &at, Bounded::max_value())? {
-				return Err(ClientError::NotInFinalizedChain)
+				return Err(ClientError::NotInFinalizedChain);
 			}
 
 			self.best_finalized_entry.as_ref()
@@ -190,7 +190,9 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 							&at,
 							&best_finalized_entry.valid_from,
 						)? =>
-						Some(best_finalized_entry),
+					{
+						Some(best_finalized_entry)
+					}
 					_ => None,
 				},
 			}
@@ -252,7 +254,7 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 							CommitOperation holds valid references while cache is locked; qed",
 					);
 					fork.best_block = Some(best_block);
-				},
+				}
 				CommitOperation::AppendNewEntry(index, entry) => {
 					let mut fork = self.unfinalized.get_mut(index).expect(
 						"ListCache is a crate-private type;
@@ -261,11 +263,11 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 					);
 					fork.best_block = Some(entry.valid_from.clone());
 					fork.head = entry;
-				},
+				}
 				CommitOperation::AddNewFork(entry) => {
 					self.unfinalized
 						.push(Fork { best_block: Some(entry.valid_from.clone()), head: entry });
-				},
+				}
 				CommitOperation::BlockFinalized(block, finalizing_entry, forks) => {
 					self.best_finalized_block = block;
 					if let Some(finalizing_entry) = finalizing_entry {
@@ -274,17 +276,17 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 					for fork_index in forks.iter().rev() {
 						self.unfinalized.remove(*fork_index);
 					}
-				},
+				}
 				CommitOperation::BlockReverted(forks) => {
 					for (fork_index, updated_fork) in forks.into_iter().rev() {
 						match updated_fork {
 							Some(updated_fork) => self.unfinalized[fork_index] = updated_fork,
 							None => {
 								self.unfinalized.remove(fork_index);
-							},
+							}
 						}
 					}
-				},
+				}
 			}
 		}
 	}
@@ -301,10 +303,10 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 		// this guarantee is currently provided by LightStorage && we're relying on it here
 		let prev_operation = operations.operations.last();
 		debug_assert!(
-			entry_type != EntryType::Final ||
-				self.unfinalized.is_empty() ||
-				self.best_finalized_block.hash == parent.hash ||
-				match prev_operation {
+			entry_type != EntryType::Final
+				|| self.unfinalized.is_empty()
+				|| self.best_finalized_block.hash == parent.hash
+				|| match prev_operation {
 					Some(&CommitOperation::BlockFinalized(ref best_finalized_block, _, _)) =>
 						best_finalized_block.hash == parent.hash,
 					_ => false,
@@ -313,7 +315,7 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 
 		// we do not store any values behind finalized
 		if block.number != Zero::zero() && self.best_finalized_block.number >= block.number {
-			return Ok(None)
+			return Ok(None);
 		}
 
 		// if the block is not final, it is possibly appended to/forking from existing unfinalized
@@ -324,14 +326,14 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 
 			// when value hasn't changed and block isn't final, there's nothing we need to do
 			if value.is_none() {
-				return Ok(None)
+				return Ok(None);
 			}
 
 			// first: try to find fork that is known to has the best block we're appending to
 			for (index, fork) in self.unfinalized.iter().enumerate() {
 				if fork.try_append(&parent) {
 					fork_and_action = Some((index, ForkAppendResult::Append));
-					break
+					break;
 				}
 			}
 
@@ -346,7 +348,7 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 						fork.try_append_or_fork(&self.storage, &parent, best_finalized_entry_block)?
 					{
 						fork_and_action = Some((index, action));
-						break
+						break;
 					}
 				}
 			}
@@ -368,8 +370,8 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 						&self.unfinalized,
 						&operation,
 					);
-					return Ok(Some(operation))
-				},
+					return Ok(Some(operation));
+				}
 				// fork from the middle of unfinalized fork
 				Some((_, ForkAppendResult::Fork(prev_valid_from))) => {
 					// it is possible that we're inserting extra (but still required) fork here
@@ -386,8 +388,8 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 						&self.unfinalized,
 						&operation,
 					);
-					return Ok(Some(operation))
-				},
+					return Ok(Some(operation));
+				}
 				None => (),
 			}
 		}
@@ -419,9 +421,9 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 						&operation,
 					);
 					Some(operation)
-				},
+				}
 				None => None,
-			})
+			});
 		}
 
 		// cleanup database from abandoned unfinalized forks and obsolete finalized entries
@@ -438,7 +440,7 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 				);
 				tx.update_meta(self.best_finalized_entry.as_ref(), &self.unfinalized, &operation);
 				Ok(Some(operation))
-			},
+			}
 			None => Ok(Some(CommitOperation::BlockFinalized(block, None, abandoned_forks))),
 		}
 	}
@@ -453,8 +455,8 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 		// this guarantee is currently provided by db backend && we're relying on it here
 		let prev_operation = operations.operations.last();
 		debug_assert!(
-			self.best_finalized_block.hash == parent.hash ||
-				match prev_operation {
+			self.best_finalized_block.hash == parent.hash
+				|| match prev_operation {
 					Some(&CommitOperation::BlockFinalized(ref best_finalized_block, _, _)) =>
 						best_finalized_block.hash == parent.hash,
 					_ => false,
@@ -488,13 +490,13 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 		for (index, fork) in self.unfinalized.iter().enumerate() {
 			// we only need to truncate fork if its head is ancestor of truncated block
 			if fork.head.valid_from.number < reverted_block.number {
-				continue
+				continue;
 			}
 
 			// we only need to truncate fork if its head is connected to truncated block
 			if !chain::is_connected_to_block(&self.storage, reverted_block, &fork.head.valid_from)?
 			{
-				continue
+				continue;
 			}
 
 			let updated_fork = fork.truncate(
@@ -570,8 +572,9 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 	) -> BTreeSet<usize> {
 		// if some block has been finalized already => take it into account
 		let prev_abandoned_forks = match prev_operation {
-			Some(&CommitOperation::BlockFinalized(_, _, ref abandoned_forks)) =>
-				Some(abandoned_forks),
+			Some(&CommitOperation::BlockFinalized(_, _, ref abandoned_forks)) => {
+				Some(abandoned_forks)
+			}
 			_ => None,
 		};
 
@@ -602,7 +605,7 @@ impl<Block: BlockT, T: CacheItemT, S: Storage<Block, T>> ListCache<Block, T, S> 
 	) -> ClientResult<Option<&Fork<Block, T>>> {
 		for unfinalized in &self.unfinalized {
 			if unfinalized.matches(&self.storage, block)? {
-				return Ok(Some(&unfinalized))
+				return Ok(Some(&unfinalized));
 			}
 		}
 
@@ -625,8 +628,9 @@ impl<Block: BlockT, T: CacheItemT> Fork<Block, T> {
 		let range = self.head.search_best_range_before(storage, block.number)?;
 		match range {
 			None => Ok(false),
-			Some((begin, end)) =>
-				chain::is_connected_to_range(storage, block, (&begin, end.as_ref())),
+			Some((begin, end)) => {
+				chain::is_connected_to_range(storage, block, (&begin, end.as_ref()))
+			}
 		}
 	}
 
@@ -657,19 +661,19 @@ impl<Block: BlockT, T: CacheItemT> Fork<Block, T> {
 
 		// check if the parent is connected to the beginning of the range
 		if !chain::is_connected_to_block(storage, parent, &begin)? {
-			return Ok(None)
+			return Ok(None);
 		}
 
 		// the block is connected to the begin-entry. If begin is the head entry
 		// => we need to append new block to the fork
 		if begin == self.head.valid_from {
-			return Ok(Some(ForkAppendResult::Append))
+			return Ok(Some(ForkAppendResult::Append));
 		}
 
 		// the parent block belongs to this fork AND it is located after last finalized entry
 		// => we need to make a new fork
 		if best_finalized_entry_block.map(|f| begin.number > f).unwrap_or(true) {
-			return Ok(Some(ForkAppendResult::Fork(begin)))
+			return Ok(Some(ForkAppendResult::Fork(begin)));
 		}
 
 		Ok(None)
@@ -702,11 +706,11 @@ impl<Block: BlockT, T: CacheItemT> Fork<Block, T> {
 			if current.number < reverting_block {
 				// if we have reached finalized block => destroy fork
 				if chain::is_finalized_block(storage, &current, best_finalized_block)? {
-					return Ok(None)
+					return Ok(None);
 				}
 
 				// else fork needs to be updated
-				return Ok(Some(Fork { best_block: None, head: entry.into_entry(current) }))
+				return Ok(Some(Fork { best_block: None, head: entry.into_entry(current) }));
 			}
 
 			tx.remove_storage_entry(&current);
@@ -748,8 +752,8 @@ impl<Block: BlockT, T: CacheItemT> CommitOperations<Block, T> {
 			Some(last_operation) => last_operation,
 			None => {
 				self.operations.push(new_operation);
-				return
-			},
+				return;
+			}
 		};
 
 		// we are able (and obliged to) to merge two consequent block finalization operations
@@ -769,7 +773,7 @@ impl<Block: BlockT, T: CacheItemT> CommitOperations<Block, T> {
 						new_finalized_entry,
 						new_abandoned_forks,
 					));
-				},
+				}
 				_ => {
 					self.operations.push(CommitOperation::BlockFinalized(
 						old_finalized_block,
@@ -777,12 +781,12 @@ impl<Block: BlockT, T: CacheItemT> CommitOperations<Block, T> {
 						old_abandoned_forks,
 					));
 					self.operations.push(new_operation);
-				},
+				}
 			},
 			_ => {
 				self.operations.push(last_operation);
 				self.operations.push(new_operation);
-			},
+			}
 		}
 	}
 }
@@ -804,7 +808,7 @@ pub fn destroy_fork<
 		// optionally: deletion stops when we found entry at finalized block
 		if let Some(best_finalized_block) = best_finalized_block {
 			if chain::is_finalized_block(storage, &current, best_finalized_block)? {
-				return Ok(())
+				return Ok(());
 			}
 		}
 
@@ -832,8 +836,8 @@ mod chain {
 		range: (&ComplexBlockId<Block>, Option<&ComplexBlockId<Block>>),
 	) -> ClientResult<bool> {
 		let (begin, end) = range;
-		Ok(is_connected_to_block(storage, block, begin)? &&
-			match end {
+		Ok(is_connected_to_block(storage, block, begin)?
+			&& match end {
 				Some(end) => is_connected_to_block(storage, block, end)?,
 				None => true,
 			})
@@ -865,7 +869,7 @@ mod chain {
 		best_finalized_block: NumberFor<Block>,
 	) -> ClientResult<bool> {
 		if block.number > best_finalized_block {
-			return Ok(false)
+			return Ok(false);
 		}
 
 		storage.read_id(block.number).map(|hash| hash.as_ref() == Some(&block.hash))
@@ -2213,14 +2217,14 @@ mod tests {
 				PruningStrategy::NeverPrune => {
 					assert!(tx.removed_entries().is_empty());
 					assert!(tx.inserted_entries().is_empty());
-				},
+				}
 				PruningStrategy::ByDepth(_) => {
 					assert_eq!(*tx.removed_entries(), vec![test_id(10).hash].into_iter().collect());
 					assert_eq!(
 						*tx.inserted_entries(),
 						vec![test_id(20).hash].into_iter().collect()
 					);
-				},
+				}
 			}
 		}
 

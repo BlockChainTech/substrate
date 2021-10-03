@@ -224,7 +224,7 @@ where
 	{
 		loop {
 			if let Some((block, extrinsic)) = self.extrinsics.pop_front() {
-				return Ok(Some((block, extrinsic)))
+				return Ok(Some((block, extrinsic)));
 			}
 
 			if let Some((block, level)) = self.blocks.pop_front() {
@@ -248,7 +248,7 @@ where
 						}) {
 						trie_root
 					} else {
-						continue
+						continue;
 					}
 				} else {
 					trie_root
@@ -289,8 +289,8 @@ where
 								.into_iter()
 								.rev()
 								.filter(|b| {
-									level.map(|level| level > 1).unwrap_or(true) ||
-										(*b >= begin && *b <= end)
+									level.map(|level| level > 1).unwrap_or(true)
+										|| (*b >= begin && *b <= end)
 								})
 								.map(|b| {
 									let prev_level =
@@ -312,7 +312,7 @@ where
 					}
 				}
 
-				continue
+				continue;
 			}
 
 			match self.surface.next() {

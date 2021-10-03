@@ -171,7 +171,7 @@ where
 	) -> ClientResult<LocalOrRemote<Block::Header, RemoteHeaderRequest<Block::Header>>> {
 		// first, try to read header from local storage
 		if let Some(local_header) = self.storage.header(id)? {
-			return Ok(LocalOrRemote::Local(local_header))
+			return Ok(LocalOrRemote::Local(local_header));
 		}
 
 		// we need to know block number to check if it's a part of CHT
@@ -186,7 +186,7 @@ where
 		// if the header is genesis (never pruned), non-canonical, or from future => return
 		if number.is_zero() || self.storage.status(BlockId::Number(number))? == BlockStatus::Unknown
 		{
-			return Ok(LocalOrRemote::Unknown)
+			return Ok(LocalOrRemote::Unknown);
 		}
 
 		Ok(LocalOrRemote::Remote(RemoteHeaderRequest {

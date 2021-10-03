@@ -206,7 +206,7 @@ fn get_cache_helper<'a, Block: BlockT>(
 				best_finalized_block.clone(),
 			)?;
 			Ok(entry.insert(cache))
-		},
+		}
 	}
 }
 
@@ -371,7 +371,7 @@ impl<Block: BlockT> BlockchainCache<Block> for DbCacheSync<Block> {
 						BlockId::Hash(hash.clone()),
 					)?;
 					ComplexBlockId::new(hash, *header.number())
-				},
+				}
 			},
 			BlockId::Number(number) => {
 				let hash = utils::require_header::<Block>(
@@ -382,7 +382,7 @@ impl<Block: BlockT> BlockchainCache<Block> for DbCacheSync<Block> {
 				)?
 				.hash();
 				ComplexBlockId::new(hash, number)
-			},
+			}
 		};
 
 		cache.value_at_block(&at).map(|block_and_value| {

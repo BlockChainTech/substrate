@@ -248,10 +248,10 @@ mod meta {
 			CommitOperation::AppendNewBlock(_, _) => (),
 			CommitOperation::AppendNewEntry(index, ref entry) => {
 				unfinalized[*index] = &entry.valid_from;
-			},
+			}
 			CommitOperation::AddNewFork(ref entry) => {
 				unfinalized.push(&entry.valid_from);
-			},
+			}
 			CommitOperation::BlockFinalized(_, ref finalizing_entry, ref forks) => {
 				if let Some(finalizing_entry) = finalizing_entry.as_ref() {
 					finalized = Some(&finalizing_entry.valid_from);
@@ -259,18 +259,19 @@ mod meta {
 				for fork_index in forks.iter().rev() {
 					unfinalized.remove(*fork_index);
 				}
-			},
+			}
 			CommitOperation::BlockReverted(ref forks) => {
 				for (fork_index, updated_fork) in forks.iter().rev() {
 					match updated_fork {
-						Some(updated_fork) =>
-							unfinalized[*fork_index] = &updated_fork.head().valid_from,
+						Some(updated_fork) => {
+							unfinalized[*fork_index] = &updated_fork.head().valid_from
+						}
 						None => {
 							unfinalized.remove(*fork_index);
-						},
+						}
 					}
 				}
-			},
+			}
 		}
 
 		(finalized, unfinalized).encode()

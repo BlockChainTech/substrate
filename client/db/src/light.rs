@@ -162,8 +162,9 @@ where
 
 	fn status(&self, id: BlockId<Block>) -> ClientResult<BlockStatus> {
 		let exists = match id {
-			BlockId::Hash(_) =>
-				read_db(&*self.db, columns::KEY_LOOKUP, columns::HEADER, id)?.is_some(),
+			BlockId::Hash(_) => {
+				read_db(&*self.db, columns::KEY_LOOKUP, columns::HEADER, id)?.is_some()
+			}
 			BlockId::Number(n) => n <= self.meta.read().best_number,
 		};
 		match exists {
@@ -300,7 +301,7 @@ impl<Block: BlockT> LightStorage<Block> {
 				"Last finalized {:?} not parent of {:?}",
 				meta.finalized_hash, hash
 			))
-			.into())
+			.into());
 		}
 
 		let lookup_key = utils::number_and_hash_to_lookup_key(header.number().clone(), hash)?;

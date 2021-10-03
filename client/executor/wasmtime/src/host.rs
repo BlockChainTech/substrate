@@ -153,7 +153,7 @@ impl<'a, 'b, 'c> Sandbox for HostContext<'a, 'b, 'c> {
 
 		let instance = self.instance.clone();
 		if let Err(_) = instance.write_memory_from(&mut self.caller, buf_ptr, &buffer) {
-			return Ok(sandbox_primitives::ERR_OUT_OF_BOUNDS)
+			return Ok(sandbox_primitives::ERR_OUT_OF_BOUNDS);
 		}
 
 		Ok(sandbox_primitives::ERR_OK)
@@ -177,7 +177,7 @@ impl<'a, 'b, 'c> Sandbox for HostContext<'a, 'b, 'c> {
 		};
 
 		if let Err(_) = sandboxed_memory.write_from(Pointer::new(offset as u32), &buffer) {
-			return Ok(sandbox_primitives::ERR_OUT_OF_BOUNDS)
+			return Ok(sandbox_primitives::ERR_OUT_OF_BOUNDS);
 		}
 
 		Ok(sandbox_primitives::ERR_OK)
@@ -243,7 +243,7 @@ impl<'a, 'b, 'c> Sandbox for HostContext<'a, 'b, 'c> {
 						.map_err(|_| "can't write return value")?;
 					Ok(sandbox_primitives::ERR_OK)
 				})
-			},
+			}
 			Err(_) => Ok(sandbox_primitives::ERR_EXECUTION),
 		}
 	}
@@ -350,7 +350,7 @@ impl<'a, 'b, 'c, 'd> sandbox::SandboxContext for SandboxContext<'a, 'b, 'c, 'd> 
 						"Supervisor function returned {} results, expected 1",
 						ret_vals.len()
 					)
-					.into())
+					.into());
 				} else {
 					&ret_vals[0]
 				};
@@ -358,9 +358,9 @@ impl<'a, 'b, 'c, 'd> sandbox::SandboxContext for SandboxContext<'a, 'b, 'c, 'd> 
 				if let Some(ret_val) = ret_val.i64() {
 					Ok(ret_val)
 				} else {
-					return Err("Supervisor function returned unexpected result!".into())
+					return Err("Supervisor function returned unexpected result!".into());
 				}
-			},
+			}
 			Err(err) => Err(err.to_string().into()),
 		}
 	}

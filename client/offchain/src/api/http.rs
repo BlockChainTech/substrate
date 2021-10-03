@@ -144,8 +144,8 @@ impl HttpApi {
 			Some(new_id) => self.next_id.0 = new_id,
 			None => {
 				error!("Overflow in offchain worker HTTP request ID assignment");
-				return Err(())
-			},
+				return Err(());
+			}
 		};
 		self.requests
 			.insert(new_id, HttpApiRequest::NotDispatched(request, body_sender));
@@ -192,12 +192,12 @@ impl HttpApi {
 			let mut when_ready = future::maybe_done(future::poll_fn(|cx| sender.poll_ready(cx)));
 			futures::executor::block_on(future::select(&mut when_ready, &mut deadline));
 			match when_ready {
-				future::MaybeDone::Done(Ok(())) => {},
+				future::MaybeDone::Done(Ok(())) => {}
 				future::MaybeDone::Done(Err(_)) => return Err(HttpError::IoError),
 				future::MaybeDone::Future(_) | future::MaybeDone::Gone => {
 					debug_assert!(matches!(deadline, future::MaybeDone::Done(..)));
-					return Err(HttpError::DeadlineReached)
-				},
+					return Err(HttpError::DeadlineReached);
+				}
 			};
 
 			futures::executor::block_on(
@@ -217,7 +217,7 @@ impl HttpApi {
 						.to_worker
 						.unbounded_send(ApiToWorker::Dispatch { id: request_id, request });
 					HttpApiRequest::Dispatched(Some(sender))
-				},
+				}
 
 				HttpApiRequest::Dispatched(Some(mut sender)) => {
 					if !chunk.is_empty() {
@@ -226,16 +226,16 @@ impl HttpApi {
 							other => {
 								self.requests
 									.insert(request_id, HttpApiRequest::Dispatched(Some(sender)));
-								return other
-							},
+								return other;
+							}
 						}
 					} else {
 						// Writing an empty body is a hint that we should stop writing. Dropping
 						// the sender.
 						self.requests.insert(request_id, HttpApiRequest::Dispatched(None));
-						return Ok(())
+						return Ok(());
 					}
-				},
+				}
 
 				HttpApiRequest::Response(
 					mut response @ HttpApiRequestRp { sending_body: Some(_), .. },
@@ -251,8 +251,8 @@ impl HttpApi {
 							other => {
 								self.requests
 									.insert(request_id, HttpApiRequest::Response(response));
-								return other
-							},
+								return other;
+							}
 						}
 					} else {
 						// Writing an empty body is a hint that we should stop writing. Dropping
@@ -264,21 +264,23 @@ impl HttpApi {
 								..response
 							}),
 						);
-						return Ok(())
+						return Ok(());
 					}
-				},
+				}
 
 				HttpApiRequest::Fail(_) =>
 				// If the request has already failed, return without putting back the request
 				// in the list.
-					return Err(HttpError::IoError),
+				{
+					return Err(HttpError::IoError)
+				}
 
-				v @ HttpApiRequest::Dispatched(None) |
-				v @ HttpApiRequest::Response(HttpApiRequestRp { sending_body: None, .. }) => {
+				v @ HttpApiRequest::Dispatched(None)
+				| v @ HttpApiRequest::Response(HttpApiRequestRp { sending_body: None, .. }) => {
 					// We have already finished sending this body.
 					self.requests.insert(request_id, v);
-					return Err(HttpError::Invalid)
-				},
+					return Err(HttpError::Invalid);
+				}
 			}
 		}
 	}
@@ -293,12 +295,12 @@ impl HttpApi {
 		// user can't write anymore data.
 		for id in ids {
 			match self.requests.get_mut(id) {
-				Some(HttpApiRequest::NotDispatched(_, _)) => {},
-				Some(HttpApiRequest::Dispatched(sending_body)) |
-				Some(HttpApiRequest::Response(HttpApiRequestRp { sending_body, .. })) => {
+				Some(HttpApiRequest::NotDispatched(_, _)) => {}
+				Some(HttpApiRequest::Dispatched(sending_body))
+				| Some(HttpApiRequest::Response(HttpApiRequestRp { sending_body, .. })) => {
 					let _ = sending_body.take();
-					continue
-				},
+					continue;
+				}
 				_ => continue,
 			};
 
@@ -330,7 +332,7 @@ impl HttpApi {
 						Some(HttpApiRequest::Dispatched(_)) => {
 							must_wait_more = true;
 							HttpRequestStatus::DeadlineReached
-						},
+						}
 						Some(HttpApiRequest::Fail(_)) => HttpRequestStatus::IoError,
 						Some(HttpApiRequest::Response(HttpApiRequestRp {
 							status_code, ..
@@ -351,7 +353,7 @@ impl HttpApi {
 							self.requests.remove(&ids[n]);
 						}
 					}
-					return output
+					return output;
 				}
 			}
 
@@ -364,7 +366,7 @@ impl HttpApi {
 					msg
 				} else {
 					debug_assert!(matches!(deadline, future::MaybeDone::Done(..)));
-					continue
+					continue;
 				}
 			};
 
@@ -383,24 +385,24 @@ impl HttpApi {
 									current_read_chunk: None,
 								}),
 							);
-						},
-						None => {}, // can happen if we detected an IO error when sending the body
+						}
+						None => {} // can happen if we detected an IO error when sending the body
 						_ => error!("State mismatch between the API and worker"),
 					}
-				},
+				}
 
 				Some(WorkerToApi::Fail { id, error }) => match self.requests.remove(&id) {
 					Some(HttpApiRequest::Dispatched(_)) => {
 						self.requests.insert(id, HttpApiRequest::Fail(error));
-					},
-					None => {}, // can happen if we detected an IO error when sending the body
+					}
+					None => {} // can happen if we detected an IO error when sending the body
 					_ => error!("State mismatch between the API and worker"),
 				},
 
 				None => {
 					error!("Worker has crashed");
-					return ids.iter().map(|_| HttpRequestStatus::IoError).collect()
-				},
+					return ids.iter().map(|_| HttpRequestStatus::IoError).collect();
+				}
 			}
 		}
 	}
@@ -439,15 +441,15 @@ impl HttpApi {
 			// and we still haven't received a response.
 			Some(rq @ HttpApiRequest::Dispatched(_)) => {
 				self.requests.insert(request_id, rq);
-				return Err(HttpError::DeadlineReached)
-			},
+				return Err(HttpError::DeadlineReached);
+			}
 			// The request has failed.
 			Some(HttpApiRequest::Fail { .. }) => return Err(HttpError::IoError),
 			// Request hasn't been dispatched yet; reading the body is invalid.
 			Some(rq @ HttpApiRequest::NotDispatched(_, _)) => {
 				self.requests.insert(request_id, rq);
-				return Err(HttpError::Invalid)
-			},
+				return Err(HttpError::Invalid);
+			}
 			None => return Err(HttpError::Invalid),
 		};
 
@@ -458,7 +460,7 @@ impl HttpApi {
 			// First read from `current_read_chunk`.
 			if let Some(mut current_read_chunk) = response.current_read_chunk.take() {
 				match current_read_chunk.read(buffer) {
-					Ok(0) => {},
+					Ok(0) => {}
 					Ok(n) => {
 						self.requests.insert(
 							request_id,
@@ -467,13 +469,13 @@ impl HttpApi {
 								..response
 							}),
 						);
-						return Ok(n)
-					},
+						return Ok(n);
+					}
 					Err(err) => {
 						// This code should never be reached unless there's a logic error somewhere.
 						error!("Failed to read from current read chunk: {:?}", err);
-						return Err(HttpError::IoError)
-					},
+						return Err(HttpError::IoError);
+					}
 				}
 			}
 
@@ -493,7 +495,7 @@ impl HttpApi {
 
 			if let future::MaybeDone::Done(_) = deadline {
 				self.requests.insert(request_id, HttpApiRequest::Response(response));
-				return Err(HttpError::DeadlineReached)
+				return Err(HttpError::DeadlineReached);
 			}
 		}
 	}
@@ -508,8 +510,9 @@ impl fmt::Debug for HttpApi {
 impl fmt::Debug for HttpApiRequest {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
-			HttpApiRequest::NotDispatched(_, _) =>
-				f.debug_tuple("HttpApiRequest::NotDispatched").finish(),
+			HttpApiRequest::NotDispatched(_, _) => {
+				f.debug_tuple("HttpApiRequest::NotDispatched").finish()
+			}
 			HttpApiRequest::Dispatched(_) => f.debug_tuple("HttpApiRequest::Dispatched").finish(),
 			HttpApiRequest::Response(HttpApiRequestRp { status_code, headers, .. }) => f
 				.debug_tuple("HttpApiRequest::Response")
@@ -604,13 +607,13 @@ impl Future for HttpWorker {
 					let response = match Future::poll(Pin::new(&mut future), cx) {
 						Poll::Pending => {
 							me.requests.push((id, HttpWorkerRequest::Dispatched(future)));
-							continue
-						},
+							continue;
+						}
 						Poll::Ready(Ok(response)) => response,
 						Poll::Ready(Err(error)) => {
 							let _ = me.to_api.unbounded_send(WorkerToApi::Fail { id, error });
-							continue // don't insert the request back
-						},
+							continue; // don't insert the request back
+						}
 					};
 
 					// We received a response! Decompose it into its parts.
@@ -627,19 +630,19 @@ impl Future for HttpWorker {
 
 					me.requests.push((id, HttpWorkerRequest::ReadBody { body, tx: body_tx }));
 					cx.waker().wake_by_ref(); // reschedule in order to poll the new future
-					continue
-				},
+					continue;
+				}
 
 				HttpWorkerRequest::ReadBody { mut body, mut tx } => {
 					// Before reading from the HTTP response, check that `tx` is ready to accept
 					// a new chunk.
 					match tx.poll_ready(cx) {
-						Poll::Ready(Ok(())) => {},
+						Poll::Ready(Ok(())) => {}
 						Poll::Ready(Err(_)) => continue, // don't insert the request back
 						Poll::Pending => {
 							me.requests.push((id, HttpWorkerRequest::ReadBody { body, tx }));
-							continue
-						},
+							continue;
+						}
 					}
 
 					// `tx` is ready. Read a chunk from the socket and send it to the channel.
@@ -648,30 +651,30 @@ impl Future for HttpWorker {
 							let _ = tx.start_send(Ok(chunk));
 							me.requests.push((id, HttpWorkerRequest::ReadBody { body, tx }));
 							cx.waker().wake_by_ref(); // reschedule in order to continue reading
-						},
+						}
 						Poll::Ready(Some(Err(err))) => {
 							let _ = tx.start_send(Err(err));
 							// don't insert the request back
-						},
-						Poll::Ready(None) => {}, // EOF; don't insert the request back
+						}
+						Poll::Ready(None) => {} // EOF; don't insert the request back
 						Poll::Pending => {
 							me.requests.push((id, HttpWorkerRequest::ReadBody { body, tx }));
-						},
+						}
 					}
-				},
+				}
 			}
 		}
 
 		// Check for messages coming from the [`HttpApi`].
 		match Stream::poll_next(Pin::new(&mut me.from_api), cx) {
-			Poll::Pending => {},
+			Poll::Pending => {}
 			Poll::Ready(None) => return Poll::Ready(()), // stops the worker
 			Poll::Ready(Some(ApiToWorker::Dispatch { id, request })) => {
 				let future = me.http_client.request(request);
 				debug_assert!(me.requests.iter().all(|(i, _)| *i != id));
 				me.requests.push((id, HttpWorkerRequest::Dispatched(future)));
 				cx.waker().wake_by_ref(); // reschedule the task to poll the request
-			},
+			}
 		}
 
 		Poll::Pending
@@ -687,10 +690,12 @@ impl fmt::Debug for HttpWorker {
 impl fmt::Debug for HttpWorkerRequest {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
-			HttpWorkerRequest::Dispatched(_) =>
-				f.debug_tuple("HttpWorkerRequest::Dispatched").finish(),
-			HttpWorkerRequest::ReadBody { .. } =>
-				f.debug_tuple("HttpWorkerRequest::Response").finish(),
+			HttpWorkerRequest::Dispatched(_) => {
+				f.debug_tuple("HttpWorkerRequest::Dispatched").finish()
+			}
+			HttpWorkerRequest::ReadBody { .. } => {
+				f.debug_tuple("HttpWorkerRequest::Response").finish()
+			}
 		}
 	}
 }
@@ -754,7 +759,7 @@ mod tests {
 		api.request_write_body(id, &[], Some(deadline)).unwrap();
 
 		match api.response_wait(&[id], Some(deadline))[0] {
-			HttpRequestStatus::Finished(200) => {},
+			HttpRequestStatus::Finished(200) => {}
 			v => panic!("Connecting to localhost failed: {:?}", v),
 		}
 
@@ -771,12 +776,12 @@ mod tests {
 		let (mut api, addr) = build_api_server!();
 
 		match api.request_start("\0", &format!("http://{}", addr)) {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 
 		match api.request_start("GET", "http://\0localhost") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 	}
@@ -786,19 +791,19 @@ mod tests {
 		let (mut api, addr) = build_api_server!();
 
 		match api.request_add_header(HttpRequestId(0xdead), "Foo", "bar") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 
 		let id = api.request_start("GET", &format!("http://{}", addr)).unwrap();
 		match api.request_add_header(id, "\0", "bar") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 
 		let id = api.request_start("POST", &format!("http://{}", addr)).unwrap();
 		match api.request_add_header(id, "Foo", "\0") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 
@@ -806,21 +811,21 @@ mod tests {
 		api.request_add_header(id, "Foo", "Bar").unwrap();
 		api.request_write_body(id, &[1, 2, 3, 4], None).unwrap();
 		match api.request_add_header(id, "Foo2", "Bar") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 
 		let id = api.request_start("GET", &format!("http://{}", addr)).unwrap();
 		api.response_headers(id);
 		match api.request_add_header(id, "Foo2", "Bar") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 
 		let id = api.request_start("GET", &format!("http://{}", addr)).unwrap();
 		api.response_read_body(id, &mut [], None).unwrap();
 		match api.request_add_header(id, "Foo2", "Bar") {
-			Err(()) => {},
+			Err(()) => {}
 			Ok(_) => panic!(),
 		};
 	}
@@ -830,12 +835,12 @@ mod tests {
 		let (mut api, addr) = build_api_server!();
 
 		match api.request_write_body(HttpRequestId(0xdead), &[1, 2, 3], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
 		match api.request_write_body(HttpRequestId(0xdead), &[], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
@@ -844,7 +849,7 @@ mod tests {
 		api.request_write_body(id, &[1, 2, 3, 4], None).unwrap();
 		api.request_write_body(id, &[], None).unwrap();
 		match api.request_write_body(id, &[], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
@@ -853,7 +858,7 @@ mod tests {
 		api.request_write_body(id, &[1, 2, 3, 4], None).unwrap();
 		api.request_write_body(id, &[], None).unwrap();
 		match api.request_write_body(id, &[1, 2, 3, 4], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
@@ -861,7 +866,7 @@ mod tests {
 		api.request_write_body(id, &[1, 2, 3, 4], None).unwrap();
 		api.response_wait(&[id], None);
 		match api.request_write_body(id, &[], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
@@ -869,35 +874,35 @@ mod tests {
 		api.request_write_body(id, &[1, 2, 3, 4], None).unwrap();
 		api.response_wait(&[id], None);
 		match api.request_write_body(id, &[1, 2, 3, 4], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
 		let id = api.request_start("POST", &format!("http://{}", addr)).unwrap();
 		api.response_headers(id);
 		match api.request_write_body(id, &[1, 2, 3, 4], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
 		let id = api.request_start("GET", &format!("http://{}", addr)).unwrap();
 		api.response_headers(id);
 		match api.request_write_body(id, &[], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
 		let id = api.request_start("POST", &format!("http://{}", addr)).unwrap();
 		api.response_read_body(id, &mut [], None).unwrap();
 		match api.request_write_body(id, &[1, 2, 3, 4], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 
 		let id = api.request_start("POST", &format!("http://{}", addr)).unwrap();
 		api.response_read_body(id, &mut [], None).unwrap();
 		match api.request_write_body(id, &[], None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		};
 	}
@@ -953,14 +958,14 @@ mod tests {
 		let mut buf = [0; 512];
 
 		match api.response_read_body(HttpRequestId(0xdead), &mut buf, None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		}
 
 		let id = api.request_start("GET", &format!("http://{}", addr)).unwrap();
 		while api.response_read_body(id, &mut buf, None).unwrap() != 0 {}
 		match api.response_read_body(id, &mut buf, None) {
-			Err(HttpError::Invalid) => {},
+			Err(HttpError::Invalid) => {}
 			_ => panic!(),
 		}
 	}
@@ -980,23 +985,23 @@ mod tests {
 				match rand::random::<u8>() % 6 {
 					0 => {
 						let _ = api.request_add_header(id, "Foo", "Bar");
-					},
+					}
 					1 => {
 						let _ = api.request_write_body(id, &[1, 2, 3, 4], None);
-					},
+					}
 					2 => {
 						let _ = api.request_write_body(id, &[], None);
-					},
+					}
 					3 => {
 						let _ = api.response_wait(&[id], None);
-					},
+					}
 					4 => {
 						let _ = api.response_headers(id);
-					},
+					}
 					5 => {
 						let mut buf = [0; 512];
 						let _ = api.response_read_body(id, &mut buf, None);
-					},
+					}
 					6..=255 => unreachable!(),
 				}
 			}

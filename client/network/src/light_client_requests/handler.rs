@@ -92,7 +92,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 							HandleRequestError::SendResponse,
 						),
 					};
-				},
+				}
 				Err(e) => {
 					debug!(
 						target: LOG_TARGET,
@@ -102,7 +102,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 					let reputation_changes = match e {
 						HandleRequestError::BadRequest(_) => {
 							vec![ReputationChange::new(-(1 << 12), "bad request")]
-						},
+						}
 						_ => Vec::new(),
 					};
 
@@ -120,7 +120,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 							HandleRequestError::SendResponse,
 						);
 					};
-				},
+				}
 			}
 		}
 	}
@@ -133,18 +133,24 @@ impl<B: Block> LightClientRequestHandler<B> {
 		let request = schema::v1::light::Request::decode(&payload[..])?;
 
 		let response = match &request.request {
-			Some(schema::v1::light::request::Request::RemoteCallRequest(r)) =>
-				self.on_remote_call_request(&peer, r)?,
-			Some(schema::v1::light::request::Request::RemoteReadRequest(r)) =>
-				self.on_remote_read_request(&peer, r)?,
-			Some(schema::v1::light::request::Request::RemoteHeaderRequest(r)) =>
-				self.on_remote_header_request(&peer, r)?,
-			Some(schema::v1::light::request::Request::RemoteReadChildRequest(r)) =>
-				self.on_remote_read_child_request(&peer, r)?,
-			Some(schema::v1::light::request::Request::RemoteChangesRequest(r)) =>
-				self.on_remote_changes_request(&peer, r)?,
-			None =>
-				return Err(HandleRequestError::BadRequest("Remote request without request data.")),
+			Some(schema::v1::light::request::Request::RemoteCallRequest(r)) => {
+				self.on_remote_call_request(&peer, r)?
+			}
+			Some(schema::v1::light::request::Request::RemoteReadRequest(r)) => {
+				self.on_remote_read_request(&peer, r)?
+			}
+			Some(schema::v1::light::request::Request::RemoteHeaderRequest(r)) => {
+				self.on_remote_header_request(&peer, r)?
+			}
+			Some(schema::v1::light::request::Request::RemoteReadChildRequest(r)) => {
+				self.on_remote_read_child_request(&peer, r)?
+			}
+			Some(schema::v1::light::request::Request::RemoteChangesRequest(r)) => {
+				self.on_remote_changes_request(&peer, r)?
+			}
+			None => {
+				return Err(HandleRequestError::BadRequest("Remote request without request data."))
+			}
 		};
 
 		let mut data = Vec::new();
@@ -177,7 +183,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 						e,
 					);
 					StorageProof::empty()
-				},
+				}
 			};
 
 		let response = {
@@ -195,7 +201,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 	) -> Result<schema::v1::light::Response, HandleRequestError> {
 		if request.keys.is_empty() {
 			debug!("Invalid remote read request sent by {}.", peer);
-			return Err(HandleRequestError::BadRequest("Remote read request without keys."))
+			return Err(HandleRequestError::BadRequest("Remote read request without keys."));
 		}
 
 		trace!(
@@ -221,7 +227,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 					error,
 				);
 				StorageProof::empty()
-			},
+			}
 		};
 
 		let response = {
@@ -239,7 +245,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 	) -> Result<schema::v1::light::Response, HandleRequestError> {
 		if request.keys.is_empty() {
 			debug!("Invalid remote child read request sent by {}.", peer);
-			return Err(HandleRequestError::BadRequest("Remove read child request without keys."))
+			return Err(HandleRequestError::BadRequest("Remove read child request without keys."));
 		}
 
 		trace!(
@@ -275,7 +281,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 					error,
 				);
 				StorageProof::empty()
-			},
+			}
 		};
 
 		let response = {
@@ -304,7 +310,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 					error
 				);
 				(Default::default(), StorageProof::empty())
-			},
+			}
 		};
 
 		let response = {
@@ -366,7 +372,7 @@ impl<B: Block> LightClientRequestHandler<B> {
 						roots: BTreeMap::new(),
 						roots_proof: StorageProof::empty(),
 					}
-				},
+				}
 			};
 
 		let response = {

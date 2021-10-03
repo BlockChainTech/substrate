@@ -595,7 +595,7 @@ pub mod pallet {
 				if position_yes.is_none() {
 					voting.ayes.push(who.clone());
 				} else {
-					return Err(Error::<T, I>::DuplicateVote.into())
+					return Err(Error::<T, I>::DuplicateVote.into());
 				}
 				if let Some(pos) = position_no {
 					voting.nays.swap_remove(pos);
@@ -604,7 +604,7 @@ pub mod pallet {
 				if position_no.is_none() {
 					voting.nays.push(who.clone());
 				} else {
-					return Err(Error::<T, I>::DuplicateVote.into())
+					return Err(Error::<T, I>::DuplicateVote.into());
 				}
 				if let Some(pos) = position_yes {
 					voting.ayes.swap_remove(pos);
@@ -704,7 +704,7 @@ pub mod pallet {
 					),
 					Pays::Yes,
 				)
-					.into())
+					.into());
 			} else if disapproved {
 				Self::deposit_event(Event::Closed(proposal_hash, yes_votes, no_votes));
 				let proposal_count = Self::do_disapprove_proposal(proposal_hash);
@@ -712,7 +712,7 @@ pub mod pallet {
 					Some(T::WeightInfo::close_early_disapproved(seats, proposal_count)),
 					Pays::No,
 				)
-					.into())
+					.into());
 			}
 
 			// Only allow actual closing of the proposal after the voting period has ended.

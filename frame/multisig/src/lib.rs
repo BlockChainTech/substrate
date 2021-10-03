@@ -287,7 +287,7 @@ pub mod pallet {
 						let post_info = Some(weight_used).into();
 						let error = err.error.into();
 						DispatchErrorWithPostInfo { post_info, error }
-					},
+					}
 					None => err,
 				})
 		}
@@ -520,7 +520,7 @@ impl<T: Config> Pallet<T> {
 				let call_hash = blake2_256(&call);
 				let call_len = call.len();
 				(call_hash, call_len, Some(call), should_store)
-			},
+			}
 			CallOrHash::Hash(h) => (h, 0, None, false),
 		};
 
@@ -662,9 +662,9 @@ impl<T: Config> Pallet<T> {
 		other_deposit: BalanceOf<T>,
 	) -> DispatchResult {
 		ensure!(!Calls::<T>::contains_key(hash), Error::<T>::AlreadyStored);
-		let deposit = other_deposit +
-			T::DepositBase::get() +
-			T::DepositFactor::get() * BalanceOf::<T>::from(((data.len() + 31) / 32) as u32);
+		let deposit = other_deposit
+			+ T::DepositBase::get()
+			+ T::DepositFactor::get() * BalanceOf::<T>::from(((data.len() + 31) / 32) as u32);
 		T::Currency::reserve(&who, deposit)?;
 		Calls::<T>::insert(&hash, (data, who, deposit));
 		Ok(())

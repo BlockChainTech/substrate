@@ -91,8 +91,9 @@ where
 			DispatchClass::Normal => FrameTransactionPriority::Normal(info.weight.into()).into(),
 			// Don't use up the whole priority space, to allow things like `tip` to be taken into
 			// account as well.
-			DispatchClass::Operational =>
-				FrameTransactionPriority::Operational(info.weight.into()).into(),
+			DispatchClass::Operational => {
+				FrameTransactionPriority::Operational(info.weight.into()).into()
+			}
 			// Mandatory extrinsics are only for inherents; never transactions.
 			DispatchClass::Mandatory => TransactionPriority::min_value(),
 		}
@@ -162,7 +163,7 @@ where
 		Some(max) if per_class > max => return Err(InvalidTransaction::ExhaustsResources.into()),
 		// There is no `max_total` limit (`None`),
 		// or we are below the limit.
-		_ => {},
+		_ => {}
 	}
 
 	// In cases total block weight is exceeded, we need to fall back
@@ -170,11 +171,12 @@ where
 	if all_weight.total() > maximum_weight.max_block {
 		match limit_per_class.reserved {
 			// We are over the limit in reserved pool.
-			Some(reserved) if per_class > reserved =>
-				return Err(InvalidTransaction::ExhaustsResources.into()),
+			Some(reserved) if per_class > reserved => {
+				return Err(InvalidTransaction::ExhaustsResources.into())
+			}
 			// There is either no limit in reserved pool (`None`),
 			// or we are below the limit.
-			_ => {},
+			_ => {}
 		}
 	}
 

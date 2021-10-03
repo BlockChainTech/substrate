@@ -150,7 +150,7 @@ where
 		authorities: Vec<(AuthorityId, BabeAuthorityWeight)>,
 	) -> Result<Self, Error> {
 		if authorities.is_empty() {
-			return Err(Error::StringError("Cannot supply empty authority set!".into()))
+			return Err(Error::StringError("Cannot supply empty authority set!".into()));
 		}
 
 		let config = Config::get_or_compute(&*client)?;
@@ -247,11 +247,11 @@ where
 						DigestItemFor::<B>::PreRuntime(BABE_ENGINE_ID, predigest.encode()),
 						DigestItemFor::<B>::Consensus(BABE_ENGINE_ID, next_epoch.encode()),
 					]
-				},
+				}
 				ViableEpochDescriptor::UnimportedGenesis(_) => {
 					// since this is the genesis, secondary predigest works for now.
 					vec![DigestItemFor::<B>::PreRuntime(BABE_ENGINE_ID, predigest.encode())]
-				},
+				}
 			}
 		};
 
@@ -292,14 +292,15 @@ where
 			let slot = *timestamp / self.config.slot_duration;
 			// manually hard code epoch descriptor
 			epoch_descriptor = match epoch_descriptor {
-				ViableEpochDescriptor::Signaled(identifier, _header) =>
+				ViableEpochDescriptor::Signaled(identifier, _header) => {
 					ViableEpochDescriptor::Signaled(
 						identifier,
 						EpochHeader {
 							start_slot: slot.into(),
 							end_slot: (slot * self.config.epoch_length).into(),
 						},
-					),
+					)
+				}
 				_ => unreachable!(
 					"we're not in the authorities, so this isn't the genesis epoch; qed"
 				),
